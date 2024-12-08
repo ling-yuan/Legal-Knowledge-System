@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="法律知识查询系统 - 法律法规查询">
+        <meta name="keywords" content="法律法规,宪法,行政法规,监察法规,司法解释,地方性法规">
+        <title>法律法规查询 - 法律知识系统</title>
+        <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
+              rel="stylesheet">
+        <style>
+        .law-container {
+            padding: 30px 0;
+        }
+        .law-filter {
+            margin-bottom: 20px;
+        }
+        .law-list {
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .law-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .law-item:last-child {
+            border-bottom: none;
+        }
+        .law-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+        </style>
+    </head>
+    <body>
+        <!-- 导航栏 -->
+        {% include 'navbar.html' %}
+        <div class="container law-container">
+            <!-- 筛选部分 -->
+            <div class="law-filter">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select" id="classification">
+                            <option value="">全部分类</option>
+                            <option value="宪法">宪法</option>
+                            <option value="法律">法律</option>
+                            <option value="行政法规">行政法规</option>
+                            <option value="监察法规">监察法规</option>
+                            <option value="司法解释">司法解释</option>
+                            <option value="地方性法规">地方性法规</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="status">
+                            <option value="">全部状态</option>
+                            <option value="现行有效">现行有效</option>
+                            <option value="已废止">已废止</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="搜索法律名称...">
+                            <button class="btn btn-primary" type="button">搜索</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 法律列表 -->
+            <div class="law-list">
+                {% for law in laws %}
+                    <div class="law-item">
+                        <h5>
+                            <a href="{% url 'law_detail' law.id %}" class="text-decoration-none">{{ law.name }}</a>
+                        </h5>
+                        <div class="law-meta">
+                            <span class="me-3">分类：{{ law.classification }}</span>
+                            <span class="me-3">制定机关：{{ law.office }}</span>
+                            <span class="me-3">时效性：{{ law.status }}</span>
+                            <span>公布日期：{{ law.publish }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="law-item text-center">
+                        <p class="text-muted">暂无相关法律法规</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- 分页 -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if laws.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ laws.previous_page_number }}">上一页</a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ laws.number }}</span>
+                    </li>
+                    {% if laws.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ laws.next_page_number }}">下一页</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+        <script>
+        // 筛选功能
+        $('#classification, #status').change(function() {
+            // 获取筛选值并提交表单
+            const classification = $('#classification').val();
+            const status = $('#status').val();
+            window.location.href = `{% url 'laws' %}?classification=${classification}&status=${status}`;
+        });
+        </script>
+    </body>
+</html>

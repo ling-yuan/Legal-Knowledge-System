@@ -1,0 +1,13 @@
+{% load static %}
+<link rel="stylesheet"
+      href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+<link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+<div class="shell">
+    <form action="{% url 'search' %}" method="get">
+        <input type="text" placeholder="请输入关键词搜索法律法规或案例..." name="q">
+        <a onclick="this.parentNode.submit()" href="#">
+            <i class="fa fa-hand-o-right"></i>
+            <i class="fa fa-search"></i>
+        </a>
+    </form>
+</div>

@@ -1,0 +1,92 @@
+* {
+    outline: none;
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+}
+
+.shell {
+    position: relative;
+    width: 50vw;
+    padding: 5px;
+    background-color: #63f7ff73;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #a2a2a2;
+}
+
+.shell a {
+    text-decoration: none;
+}
+
+.shell input {
+    width: 80%;
+    height: 8vh;
+    color: #fff;
+    font: bold 20px 'Open Sans', sans-serif;
+    border: 0;
+    background-color: transparent;
+    padding: 1vh 2vw;
+}
+
+.shell input::placeholder {
+    color: #cccccc;
+}
+
+.shell a {
+    display: flex;
+    font-size: 8vh;
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    color: #262626;
+    /* width: 250px;
+    height: 150px; */
+}
+
+.shell a .fa {
+    /* margin: 10px 28px; */
+    transition: .3s;
+}
+
+.shell a .fa-search {
+    transform: translateX(-2vh);
+    opacity: 1;
+}
+
+.shell a .fa-hand-o-right {
+    transform: translateX(-5vh);
+    opacity: 0;
+}
+
+.shell a:hover .fa-search {
+    transform: translateX(9vh);
+    opacity: 0;
+}
+
+.shell a:hover .fa-hand-o-right {
+    transform: translateX(6vh);
+    opacity: 1;
+}
+
+.shell a:hover::before {
+    top: -115px;
+    opacity: 1;
+}
+
+@keyframes box {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    33% {
+        transform: rotate(8deg);
+    }
+
+    66% {
+        transform: rotate(-8deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}

@@ -1,0 +1,86 @@
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <!--图标-->
+    <link rel="icon" href="{% static "img/favicon.png" %}">
+    <!-- 导入字体图标 -->
+    <link rel="stylesheet" type="text/css" href="{% static "plugins/font/iconfont.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/login.css" %}">
+</head>
+<body>
+    <div class="shell">
+        <div class="container a-container" id="a-container">
+            <form method="post"
+                  action="{% url 'doRegister' %}"
+                  class="form"
+                  id="a-form">
+                {% csrf_token %}
+                <h2 class="form_title title">创建账号</h2>
+                <input type="text" class="form_input" placeholder="Name" name="uname">
+                <input type="email" class="form_input" placeholder="Email" name="uemail">
+                <input type="password" class="form_input" placeholder="Password" name="upwd">
+                <button class="form_button button submit" type="submit">注册</button>
+            </form>
+        </div>
+        <div class="container b-container" id="b-container">
+            <form action="{% url 'doLogin' %}" method="post" class="form" id="b-form">
+                {% csrf_token %}
+                <h2 class="form_title title">登入账号</h2>
+                <input type="text" class="form_input" placeholder="Email">
+                <input type="text" class="form_input" placeholder="Password">
+                <a class="form_link">忘记密码？</a>
+                <button class="form_button button submit" type="submit">登录</button>
+            </form>
+        </div>
+        <div class="switch" id="switch-cnt">
+            <div class="switch_circle"></div>
+            <div class="switch_circle switch_circle-t"></div>
+            <div class="switch_container" id="switch-c1">
+                <h2 class="switch_title title">Welcome Back！</h2>
+                <p class="switch_description description">已有账号？去登入账号以使用本站资源</p>
+                <button class="switch_button button switch-btn">登陆</button>
+            </div>
+            <div class="switch_container is-hidden" id="switch-c2">
+                <h2 class="switch_title title">Hello Friend！</h2>
+                <p class="switch_description description">还没有账号？去注册以使用本站资源</p>
+                <button class="switch_button button switch-btn">注册</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    let switchCtn = document.querySelector("#switch-cnt");
+    let switchC1 = document.querySelector("#switch-c1");
+    let switchC2 = document.querySelector("#switch-c2");
+    let switchCircle = document.querySelectorAll(".switch_circle");
+    let switchBtn = document.querySelectorAll(".switch-btn");
+    let aContainer = document.querySelector("#a-container");
+    let bContainer = document.querySelector("#b-container");
+    let changeForm = (e) => {
+        // 修改类名
+        switchCtn.classList.add("is-gx");
+        setTimeout(function () {
+            switchCtn.classList.remove("is-gx");
+        }, 1500)
+        switchCtn.classList.toggle("is-txr");
+        switchCircle[0].classList.toggle("is-txr");
+        switchCircle[1].classList.toggle("is-txr");
+
+        switchC1.classList.toggle("is-hidden");
+        switchC2.classList.toggle("is-hidden");
+        aContainer.classList.toggle("is-txl");
+        bContainer.classList.toggle("is-txl");
+        bContainer.classList.toggle("is-z");
+    }
+    // 点击切换
+    let shell = (e) => {
+        for (var i = 0; i < switchBtn.length; i++)
+            switchBtn[i].addEventListener("click", changeForm)
+    }
+    window.addEventListener("load", shell);
+    
+    </script>
+</body>
