@@ -1,24 +1,11 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="法律知识查询系统 - 提供法律法规、案例分析和AI法律咨询服务">
-        <meta name="keywords" content="法律查询,法律法规,案例分析,AI法律咨询,法律知识">
-        <title>法律知识查询系统</title>
-        <!--图标-->
-        <link rel="icon" href="{% static "img/favicon.png" %}">
-        <link rel="stylesheet" href="{% static "css/index.css" %}">
-    </head>
-    <body>
-        {% include "navbar.html" %}
-        <div class="index-content">
-            <h1 class="index-title">法律知识查询系统</h1>
-            <br/>
-            <br/>
-            {% include "searchbar.html" %}
-        </div>
-        {% include "footer.html" %}
-    </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "css/index.css" %}">
+    <div class="index-content">
+        <h1 class="index-title">法律知识查询系统</h1>
+        <br />
+        <br />
+        {% include "searchbar.html" %}
+    </div>
+{% endblock content %}

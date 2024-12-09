@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="法律知识查询系统 - 提供法律法规、案例分析和AI法律咨询服务">
+        <meta name="keywords" content="法律查询,法律法规,案例分析,AI法律咨询,法律知识">
+        <title>法律知识查询系统</title>
+        {# 图标 #}
+        <link rel="icon" href="{% static "img/favicon.png" %}">
+        {# css #}
+        <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
+              rel="stylesheet">
+        <link rel="stylesheet" href="{% static "css/base.css" %}">
+        {# js #}
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    </head>
+    <body>
+        {% include "navbar.html" %}
+        {% block content %}
+        {% endblock content %}
+        {% include "footer.html" %}
+    </body>
+</html>
