@@ -10,8 +10,18 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'laws' %}">法律法规</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="lawsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        法律法规
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="lawsDropdown">
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=宪法">宪法</a></li>
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=法律">法律</a></li>
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=行政法规">行政法规</a></li>
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=监察法规">监察法规</a></li>
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=司法解释">司法解释</a></li>
+                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=地方性法规">地方性法规</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'cases' %}">案例分析</a>

@@ -1,44 +1,68 @@
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/lawlist.css' %}">
+<link rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/lawlist.css' %}">
 <div class="list">
-    <div class="row">
-        <div class="col-md-5">
-            <span class="label label-default">标题</span>
-        </div>
-        <div class="col-md-3">
-            <span class="label label-default">制定机关</span>
-        </div>
-        <div class="col-md-1">
-            <span class="label label-default">法律性质</span>
-        </div>
-        <div class="col-md-1">
-            <span class="label label-default">时效性</span>
-        </div>
-        <div class="col-md-1">
-            <span class="label label-default">公布日期</span>
-        </div>
-        <hr>
-    </div>
-    {% for item in laws %}
+    {% if laws %}
         <div class="row">
             <div class="col-md-5">
-                <span class="label label-info">
-                    <a href="{% url 'law_detail' item.id %}">{{ item.name }}</a>
-                </span>
+                <span class="label label-default">标题</span>
             </div>
             <div class="col-md-3">
-                <span class="label label-info">{{ item.office }}</span>
+                <span class="label label-default">制定机关</span>
             </div>
             <div class="col-md-1">
-                <span class="label label-info">{{ item.lawtype|truncatechars:6 }}</span>
+                <span class="label label-default">法律性质</span>
             </div>
             <div class="col-md-1">
-                <span class="label label-info">{{ item.status }}</span>
+                <span class="label label-default">时效性</span>
             </div>
             <div class="col-md-1">
-                <span class="label label-info">{{ item.publish }}</span>
+                <span class="label label-default">公布日期</span>
             </div>
             <hr>
         </div>
-    {% endfor %}
+        {% for item in laws %}
+            <div class="row">
+                <div class="col-md-5">
+                    <span class="label label-info">
+                        <a href="{% url 'law_detail' item.id %}">{{ item.name }}</a>
+                    </span>
+                </div>
+                <div class="col-md-3">
+                    <span class="label label-info">{{ item.office }}</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="label label-info">{{ item.lawtype|truncatechars:6 }}</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="label label-info">{{ item.status }}</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="label label-info">{{ item.publish }}</span>
+                </div>
+                <hr>
+            </div>
+        {% endfor %}
+        {# 页码控制部分 #}
+        <div class="row">
+            <div class="col-md-12">
+                <span class="label label-default">共{{ laws.paginator.count }}条</span>
+                <span class="label label-default">当前第{{ laws.number }}页</span>
+                <span class="label label-default">共{{ laws.paginator.num_pages }}页</span>
+                {% if laws.has_previous %}
+                    <a href="?classification={{ classification }}&page={{ laws.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                {% endif %}
+                {% if laws.has_next %}
+                    <a href="?classification={{ classification }}&page={{ laws.next_page_number }}"><span class="label label-default">下一页</span></a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-12">
+                <span class="label label-default">暂无结果</span>
+            </div>
+        </div>
+    {% endif %}
 </div>

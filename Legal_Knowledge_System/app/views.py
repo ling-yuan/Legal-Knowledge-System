@@ -54,36 +54,36 @@ def search(request: HttpRequest):
 
 
 def laws_view(request: HttpRequest):
-    # 获取筛选参数
-    classification = request.GET.get("classification", "")
+    # 参数
+    classification = request.GET.get("classification", "宪法")
     status = request.GET.get("status", "")
     search_query = request.GET.get("q", "")
+    page = request.GET.get("page", "1")
 
-    # 合并两个表的查询结果
-    laws = Law_Information.objects.all()
-    local_laws = Local_Law_Information.objects.all()
+    context = {
+        "classification": classification,
+        "status": status,
+        "search_query": search_query,
+        "page": page,
+        "laws": [],
+    }
 
-    # 应用筛选
+    if classification != "地方性法规":
+        laws = Law_Information.objects.all()
+    else:
+        laws = Local_Law_Information.objects.all()
+
     if classification:
         laws = laws.filter(classification=classification)
-        local_laws = local_laws.filter(classification=classification)
     if status:
         laws = laws.filter(status=status)
-        local_laws = local_laws.filter(status=status)
     if search_query:
-        laws = laws.filter(name__icontains=search_query)
-        local_laws = local_laws.filter(name__icontains=search_query)
+        laws = laws.filter(title__icontains=search_query)
+    paginator = Paginator(laws, 10)
+    context["laws"] = paginator.get_page(page)
+    context["total_pages"] = paginator.num_pages
 
-    # 合并结果并排序
-    all_laws = list(laws) + list(local_laws)
-    all_laws.sort(key=lambda x: x.publish, reverse=True)
-
-    # 分页
-    paginator = Paginator(all_laws, 10)  # 每页显示10条
-    page = request.GET.get("page")
-    laws_page = paginator.get_page(page)
-
-    return render(request, "laws.html", {"laws": laws_page})
+    return render(request, "laws.html", context)
 
 
 def law_detail(request: HttpRequest, law_id):
