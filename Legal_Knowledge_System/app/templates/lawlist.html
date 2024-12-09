@@ -1,0 +1,44 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/lawlist.css' %}">
+<div class="list">
+    <div class="row">
+        <div class="col-md-5">
+            <span class="label label-default">标题</span>
+        </div>
+        <div class="col-md-3">
+            <span class="label label-default">制定机关</span>
+        </div>
+        <div class="col-md-1">
+            <span class="label label-default">法律性质</span>
+        </div>
+        <div class="col-md-1">
+            <span class="label label-default">时效性</span>
+        </div>
+        <div class="col-md-1">
+            <span class="label label-default">公布日期</span>
+        </div>
+        <hr>
+    </div>
+    {% for item in laws %}
+        <div class="row">
+            <div class="col-md-5">
+                <span class="label label-info">
+                    <a href="{% url 'law_detail' item.id %}">{{ item.name }}</a>
+                </span>
+            </div>
+            <div class="col-md-3">
+                <span class="label label-info">{{ item.office }}</span>
+            </div>
+            <div class="col-md-1">
+                <span class="label label-info">{{ item.lawtype|truncatechars:6 }}</span>
+            </div>
+            <div class="col-md-1">
+                <span class="label label-info">{{ item.status }}</span>
+            </div>
+            <div class="col-md-1">
+                <span class="label label-info">{{ item.publish }}</span>
+            </div>
+            <hr>
+        </div>
+    {% endfor %}
+</div>
