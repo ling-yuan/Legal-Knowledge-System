@@ -86,5 +86,43 @@ def laws_view(request: HttpRequest):
     return render(request, "laws.html", context)
 
 
-def law_detail(request: HttpRequest, law_id):
-    return HttpResponse(f"Law Detail: {law_id}")
+def read_file(id: str, file_type: str):
+    import os
+
+    file_name = f"{id}.{file_type}"
+    if os.path.exists(os.environ.get("DATA_FILE_FOLDER") + file_name):
+        return "存在：" + file_name
+    else:
+        return "不存在：" + file_name
+
+
+def law_detail(request: HttpRequest, classification: str, law_id: str):
+    import os
+
+    table = Local_Law_Information.objects.all() if classification == "地方性法规" else Law_Information.objects.all()
+    # 查找id是否存在
+    law = table.filter(id=law_id).first()
+
+    if law:
+        data = {"domain": os.environ.get("DOMAIN"), "law": law}
+        return render(request, "law_detail.html", data)
+    else:
+        return HttpResponse("Not Found")
+
+
+def law_file(request: HttpRequest, file_name: str):
+    import os
+
+    if os.path.exists(os.environ.get("DATA_FILE_FOLDER") + file_name):
+        # 返回文件
+        if file_name.endswith(".pdf"):
+            with open(os.environ.get("DATA_FILE_FOLDER") + file_name, "rb") as f:
+                return HttpResponse(f.read(), content_type="application/pdf")
+        elif file_name.endswith(".html"):
+            with open(os.environ.get("DATA_FILE_FOLDER") + file_name, "r", encoding="utf-8") as f:
+                return HttpResponse(f.read(), content_type="text/html; charset=utf-8")
+        else:
+            with open(os.environ.get("DATA_FILE_FOLDER") + file_name, "rb") as f:
+                return HttpResponse(f.read(), content_type="application/octet-stream")
+    else:
+        return HttpResponse("File Not Found")

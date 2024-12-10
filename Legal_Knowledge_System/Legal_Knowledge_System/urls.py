@@ -32,5 +32,6 @@ urlpatterns = [
     path("cases/", views.cases, name="cases"),
     path("ai_chat/", views.ai_chat, name="ai_chat"),
     path("search", views.search, name="search"),
-    path("law_detail/<str:law_id>/", view=views.law_detail, name="law_detail"),
+    path("law_detail/<str:classification>/<str:law_id>/", view=views.law_detail, name="law_detail"),
+    path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
 ]
