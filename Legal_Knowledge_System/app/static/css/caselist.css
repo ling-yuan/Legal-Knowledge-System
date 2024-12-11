@@ -1,0 +1,16 @@
+.list .row {
+    margin: auto;
+    padding: 1vh 2vw;
+}
+
+.list .row div {
+    padding-bottom: 0.5vh;
+}
+
+.list .row hr {
+    margin: 0;
+}
+
+.list .row:hover {
+    background-color: #f0f0f0;
+}

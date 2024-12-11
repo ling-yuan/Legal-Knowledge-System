@@ -1,0 +1,62 @@
+{% load static %}
+<link rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/caselist.css' %}">
+<div class="list">
+    {% if cases %}
+        <div class="row">
+            <div class="col-md-7">
+                <span class="label label-default">标题</span>
+            </div>
+            <div class="col-md-3">
+                <span class="label label-default">案例分类</span>
+            </div>
+            <div class="col-md-1">
+                <span class="label label-default">来源</span>
+            </div>
+            <div class="col-md-1">
+                <span class="label label-default">发布日期</span>
+            </div>
+            <hr>
+        </div>
+        {% for item in cases %}
+            <div class="row">
+                <div class="col-md-7">
+                    <span class="label label-info">
+                        <a href="{% url 'case_detail' classification item.id %}">{{ item.title }}</a>
+                    </span>
+                </div>
+                <div class="col-md-3">
+                    <span class="label label-info">{{ item.classification }}</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="label label-info">{{ item.source }}</span>
+                </div>
+                <div class="col-md-1">
+                    <span class="label label-info">{{ item.publish }}</span>
+                </div>
+                <hr>
+            </div>
+        {% endfor %}
+        {# 页码控制部分 #}
+        <div class="row">
+            <div class="col-md-12">
+                <span class="label label-default">共{{ cases.paginator.count }}条</span>
+                <span class="label label-default">当前第{{ cases.number }}页</span>
+                <span class="label label-default">共{{ cases.paginator.num_pages }}页</span>
+                {% if cases.has_previous %}
+                    <a href="?classification={{ classification }}&page={{ cases.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                {% endif %}
+                {% if cases.has_next %}
+                    <a href="?classification={{ classification }}&page={{ cases.next_page_number }}"><span class="label label-default">下一页</span></a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-12">
+                <span class="label label-default">暂无结果</span>
+            </div>
+        </div>
+    {% endif %}
+</div>
