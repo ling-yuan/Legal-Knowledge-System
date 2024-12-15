@@ -1,8 +1,10 @@
 import os
 from django.http import HttpResponse, HttpRequest
+from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from .models import LawInformation, LocalLawInformation, CaseInformation
+
 
 # Create your views here.
 
@@ -39,7 +41,7 @@ def user_detail(request: HttpRequest, user_id):
 
 
 def ai_chat(request: HttpRequest):
-    return HttpResponse("AI Chat")
+    return render(request, "chat.html")
 
 
 def search(request: HttpRequest):
@@ -153,7 +155,7 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
     case = table.filter(id=case_id).first()
     if case:
         case.content = case.content.replace("\n\n", "\n").split("\n")
-        # 
+        #
         data = {
             "domain": os.environ.get("DOMAIN"),
             "case": case,
@@ -162,3 +164,16 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
         return render(request, "case_detail.html", data)
     else:
         return HttpResponse("Case Not Found")
+
+# api -----------------------------------------------------------------------------------------------------------------------------
+def chat(request: HttpRequest):
+    def test_(n: int):
+        import time
+
+        for i in range(n):
+            time.sleep(1)
+            yield str(i)
+
+    numbers = test_(30)
+    response = StreamingHttpResponse(numbers, content_type="text/event-stream")
+    return response

@@ -35,4 +35,7 @@ urlpatterns = [
     path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
     path("cases/", views.case_view, name="cases"),
     path("case_detail/<str:classification>/<str:case_id>/", view=views.case_detail, name="case_detail"),
+
+    # api 
+    path("api/chat/", views.chat, name="chat"),
 ]
