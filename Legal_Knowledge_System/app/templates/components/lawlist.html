@@ -5,9 +5,10 @@
 <div class="list-container">
     <!-- 列表导航栏部分 -->
     <div class="list-nav">
-        <div class="row">
-            <!-- 下拉菜单：分类 -->
-            <div class="col-md-2">
+        <!-- 下拉菜单：分类 -->
+        <span>
+            <span class="select-label">分类：</span>
+            <span class="select-container">
                 <select class="form-control" id="classification-select">
                     {% for t in all_classifications %}
                         {% if t == classification %}
@@ -17,9 +18,12 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-            </div>
-            <!-- 下拉菜单：状态 -->
-            <div class="col-md-2">
+            </span>
+        </span>
+        <!-- 下拉菜单：状态 -->
+        <span>
+            <span class="select-label">时效性：</span>
+            <span class="select-container">
                 <select class="form-control" id="status-select">
                     {% for t in all_status %}
                         {% if t == status %}
@@ -29,78 +33,58 @@
                         {% endif %}
                     {% endfor %}
                 </select>
+            </span>
+        </span>
+        <!-- 搜索框 -->
+        <span>
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="请输入关键字"
+                       id="search-input">
+                <span class="input-group-btn">
+                    <button class="btn btn-default rotate-border" type="button" id="search-button">搜索</button>
+                </span>
             </div>
-            <!-- 搜索框 -->
-            <div class="col-md-4">
-                <div class="input-group">
-                    <input type="text"
-                           class="form-control"
-                           placeholder="请输入关键字"
-                           id="search-input">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" id="search-button">搜索</button>
-                    </span>
-                </div>
-            </div>
-        </div>
+        </span>
     </div>
     <!-- 列表内容部分 -->
-    <div class="list">
+    <ul class="law-list">
         {% if laws %}
-            <div class="row">
-                <div class="col-md-5">
-                    <span class="label label-default">标题</span>
-                </div>
-                <div class="col-md-3">
-                    <span class="label label-default">制定机关</span>
-                </div>
-                <div class="col-md-2">
-                    <span class="label label-default">法律性质</span>
-                </div>
-                <div class="col-md-1">
-                    <span class="label label-default">时效性</span>
-                </div>
-                <div class="col-md-1">
-                    <span class="label label-default">公布日期</span>
-                </div>
-                <hr>
-            </div>
+            <li>
+                <span class="col title tbhead">标题</span>
+                <span class="col office tbhead">制定机关</span>
+                <span class="col lawtype tbhead">法律性质</span>
+                <span class="col status tbhead">时效性</span>
+                <span class="col publish tbhead">公布日期</span>
+            </li>
             {% for item in laws %}
-                <div class="row">
-                    <div class="col-md-5">
-                        <span class="label label-info">
-                            <a href="{% url 'law_detail' classification item.id %}">{{ item.name }}</a>
-                        </span>
-                    </div>
-                    <div class="col-md-3">
-                        <span class="label label-info">{{ item.office }}</span>
-                    </div>
-                    <div class="col-md-2">
-                        <span class="label label-info">{{ item.lawtype|truncatechars:6 }}</span>
-                    </div>
-                    <div class="col-md-1">
-                        <span class="label label-info">{{ item.status }}</span>
-                    </div>
-                    <div class="col-md-1">
-                        <span class="label label-info">{{ item.publish }}</span>
-                    </div>
-                    <hr>
-                </div>
+                <li>
+                    <span class="col title">
+                        <a href="{% url 'law_detail' classification item.id %}">{{ item.name }}</a>
+                    </span>
+                    <span class="col office">{{ item.office }}</span>
+                    <span class="col lawtype">{{ item.lawtype|truncatechars:6 }}</span>
+                    <span class="col status">{{ item.status }}</span>
+                    <span class="col publish">{{ item.publish }}</span>
+                </li>
             {% endfor %}
             {# 页码控制部分 #}
-            <div class="row">
-                <div class="col-md-12">
-                    <span class="label label-default">共{{ laws.paginator.count }}条</span>
-                    <span class="label label-default">当前第{{ laws.number }}页</span>
-                    <span class="label label-default">共{{ laws.paginator.num_pages }}页</span>
+            <li class="pagination">
+                <span class="col count">共 {{ laws.paginator.count }} 条</span>
+                <span class="col page-control">
                     {% if laws.has_previous %}
-                        <a href="?classification={{ classification }}&page={{ laws.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                        <span class="previous-page">
+                            <a href="?classification={{ classification }}&page={{ laws.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                        </span>
                     {% endif %}
                     {% if laws.has_next %}
-                        <a href="?classification={{ classification }}&page={{ laws.next_page_number }}"><span class="label label-default">下一页</span></a>
+                        <span class="next-page">
+                            <a href="?classification={{ classification }}&page={{ laws.next_page_number }}"><span class="label label-default">下一页</span></a>
+                        </span>
                     {% endif %}
-                </div>
-            </div>
+                </span>
+            </li>
         {% else %}
             <div class="row">
                 <div class="col-md-12">
@@ -108,5 +92,5 @@
                 </div>
             </div>
         {% endif %}
-    </div>
+    </ul>
 </div>
