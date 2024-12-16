@@ -1,6 +1,17 @@
+.list-container {
+    margin: 5vmin;
+
+}
+
+.list-nav .row,
 .list .row {
     margin: auto;
     padding: 1vh 2vw;
+    /* 毛玻璃 */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 1vw;
+    box-shadow: 0 0 0.5vh 0.5vh rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(50px);
 }
 
 .list .row div {
@@ -13,4 +24,8 @@
 
 .list .row:hover {
     background-color: #f0f0f0;
+}
+
+.list .row div .label {
+    mix-blend-mode: multiply;
 }

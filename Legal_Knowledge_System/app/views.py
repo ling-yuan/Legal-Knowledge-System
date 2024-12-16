@@ -56,6 +56,8 @@ def laws_view(request: HttpRequest):
     page = request.GET.get("page", "1")
 
     context = {
+        "all_classifications": ["宪法", "法律", "行政法规", "监察法规", "司法解释", "地方性法规"],
+        "all_status": ["", "有效", "已修改", "已废止", "尚未生效"],
         "classification": classification,
         "status": status,
         "search_query": search_query,
@@ -164,6 +166,7 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
         return render(request, "case_detail.html", data)
     else:
         return HttpResponse("Case Not Found")
+
 
 # api -----------------------------------------------------------------------------------------------------------------------------
 def chat(request: HttpRequest):
