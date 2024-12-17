@@ -88,6 +88,7 @@ def laws_view(request: HttpRequest):
     page = request.GET.get("page", "1")
 
     context = {
+        "domain": os.environ.get("DOMAIN"),
         "all_classifications": ["宪法", "法律", "行政法规", "监察法规", "司法解释", "地方性法规"],
         "all_status": ["", "有效", "已修改", "已废止", "尚未生效"],
         "classification": classification,
@@ -145,16 +146,16 @@ def case_view(request: HttpRequest):
     案例查询页面
     """
     # 参数
-    classification = request.GET.get("classification", "行政指导案例")
-    title = request.GET.get("title", "")
+    classification = request.GET.get("classification", "")
+    title = request.GET.get("q", "")
     publish = request.GET.get("publish", "")
-    source = request.GET.get("source", "")
+    source = request.GET.get("source", "")  
     page = request.GET.get("page", "1")
 
     # 查询
     table = CaseInformation.objects.all().order_by("-title")
     if classification:
-        table = table.filter(classification=classification)
+        table = table.filter(classification__icontains=classification)
     if title:
         table = table.filter(title__icontains=title)
     if publish:
@@ -167,9 +168,21 @@ def case_view(request: HttpRequest):
     page_obj = paginator.get_page(page)
     data = {
         "domain": os.environ.get("DOMAIN"),
+        "all_classifications": [
+            "",
+            "行政指导案例",
+            "民事指导案例",
+            "刑事指导案例",
+            "行政典型案例",
+            "民事典型案例",
+            "刑事典型案例",
+            "行政其他案例",
+            "民事其他案例",
+            "刑事其他案例",
+        ],
         "cases": page_obj,
         "classification": classification,
-        "title": title,
+        "search_query": title,
         "publish": publish,
         "source": source,
     }
