@@ -1,5 +1,5 @@
 .list-container {
-    margin: 5vmin;
+    margin: 2rem 4rem;
     display: grid;
 }
 
@@ -85,7 +85,6 @@
 ul.law-list {
     list-style-position: inside;
     max-width: 100%;
-    /* background: white; */
     background: linear-gradient(to right bottom,
             rgba(255, 255, 255, 0.65),
             rgba(255, 255, 255, 0.45),

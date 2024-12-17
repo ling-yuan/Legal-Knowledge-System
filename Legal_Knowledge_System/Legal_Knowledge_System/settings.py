@@ -138,4 +138,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEFAULT_CHARSET = "utf8"
 
 # 允许iframe
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = "ALLOWALL" # 'SAMEORIGIN' 仅允许同源

@@ -1,0 +1,29 @@
+.detail-container {
+    width: 100%;
+    padding: 2rem 4rem;
+}
+
+.detail-box {
+    display: inline-block;
+    padding: 2rem 4rem;
+
+    list-style-position: inside;
+    width: 100%;
+    background: linear-gradient(to right bottom,
+            rgba(255, 255, 255, 0.65),
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0.6));
+    /* 重点：使元素背景模糊化 */
+    backdrop-filter: blur(11px);
+    box-shadow: 0.25rem 0.25rem 0.75rem rgb(0 0 0 / 0.15);
+    border-radius: 1rem;
+
+}
+
+.detail-info {}
+
+.detail-file {
+    margin: 2rem 0;
+    border-radius: 1rem;
+    overflow: hidden;
+}

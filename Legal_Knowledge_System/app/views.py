@@ -116,12 +116,12 @@ def laws_view(request: HttpRequest):
     return render(request, "laws.html", context)
 
 
-def read_file(id: str, file_type: str):
-    file_name = f"{id}.{file_type}"
-    if os.path.exists(os.environ.get("DATA_FILE_FOLDER") + file_name):
-        return "存在：" + file_name
-    else:
-        return "不存在：" + file_name
+# def read_file(id: str, file_type: str):
+#     file_name = f"{id}.{file_type}"
+#     if os.path.exists(os.environ.get("DATA_FILE_FOLDER") + file_name):
+#         return "存在：" + file_name
+#     else:
+#         return "不存在：" + file_name
 
 
 def law_detail(request: HttpRequest, classification: str, law_id: str):
@@ -149,7 +149,7 @@ def case_view(request: HttpRequest):
     classification = request.GET.get("classification", "")
     title = request.GET.get("q", "")
     publish = request.GET.get("publish", "")
-    source = request.GET.get("source", "")  
+    source = request.GET.get("source", "")
     page = request.GET.get("page", "1")
 
     # 查询

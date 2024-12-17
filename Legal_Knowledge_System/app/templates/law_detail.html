@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/lawdetail.css' %}">
+    <div class="detail-container">
+        <div class="detail-box">
+            <div class="detail-info">
                 <h2>{{ law.name }}</h2>
                 <p>制定机关{{ law.office }}</p>
                 <p>法律性质：{{ law.lawtype }}</p>
                 <p>时效性：{{ law.status }}</p>
                 <p>公布日期：{{ law.publish }}</p>
             </div>
-            <div class="col-md-2"></div>
-            <div class="col-md-6">
-                {% include "components/viewfile.html" %}
-            </div>
+            <div class="detail-file">{% include "components/viewfile.html" %}</div>
         </div>
     </div>
 {% endblock content %}
