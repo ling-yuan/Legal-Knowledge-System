@@ -29,13 +29,13 @@ urlpatterns = [
     path("doRegister/", views.doRegister, name="doRegister"),
     path("user_detail/<str:user_id>/", views.user_detail, name="user_detail"),
     path("ai_chat/", views.ai_chat, name="ai_chat"),
-    path("search", views.search, name="search"),
+    path("search/", views.search, name="search"),
     path("laws/", views.laws_view, name="laws"),
     path("law_detail/<str:classification>/<str:law_id>/", view=views.law_detail, name="law_detail"),
-    path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
     path("cases/", views.case_view, name="cases"),
     path("case_detail/<str:classification>/<str:case_id>/", view=views.case_detail, name="case_detail"),
 
     # api 
+    path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
     path("api/chat/", views.chat, name="chat"),
 ]

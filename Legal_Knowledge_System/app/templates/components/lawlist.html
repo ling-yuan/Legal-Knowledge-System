@@ -37,15 +37,17 @@
         </span>
         <!-- 搜索框 -->
         <span>
-            <div class="input-group">
+            <span class="select-label">标题：</span>
+            <span class="select-container">
                 <input type="text"
                        class="form-control"
                        placeholder="请输入关键字"
-                       id="search-input">
-                <span class="input-group-btn">
-                    <button class="btn btn-default rotate-border" type="button" id="search-button">搜索</button>
-                </span>
-            </div>
+                       id="search-input"
+                       value="{{ search_query }}">
+            </span>
+        </span>
+        <span>
+            <button class="search-btn rotate-border" type="button" id="search-button">搜索</button>
         </span>
     </div>
     <!-- 列表内容部分 -->
@@ -75,12 +77,12 @@
                 <span class="col page-control">
                     {% if laws.has_previous %}
                         <span class="previous-page">
-                            <a href="?classification={{ classification }}&page={{ laws.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                            <a href="?classification={{ classification }}&status={{ status }}&q={{ search_query }}&page={{ laws.previous_page_number }}"><span class="label label-default">上一页</span></a>
                         </span>
                     {% endif %}
                     {% if laws.has_next %}
                         <span class="next-page">
-                            <a href="?classification={{ classification }}&page={{ laws.next_page_number }}"><span class="label label-default">下一页</span></a>
+                            <a href="?classification={{ classification }}&status={{ status }}&q={{ search_query }}&page={{ laws.next_page_number }}"><span class="label label-default">下一页</span></a>
                         </span>
                     {% endif %}
                 </span>
@@ -94,3 +96,4 @@
         {% endif %}
     </ul>
 </div>
+<script src="{% static 'js/lawlist.js' %}"></script>

@@ -36,6 +36,52 @@
     /* 添加右边距，使标签和下拉菜单之间有间隔 */
 }
 
+.search-btn {
+    /* 清除基本样式 */
+    border: none;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.8rem;
+    background-color: #00000000;
+    padding: 0.5rem 1rem;
+}
+
+.rotate-border {
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.rotate-border::before {
+    z-index: -2;
+    position: absolute;
+    content: '';
+    width: 200%;
+    height: 200%;
+    background-color: #ff0000;
+    left: 50%;
+    top: 50%;
+    transform-origin: left top;
+    animation: rotation 2s linear infinite;
+}
+
+@keyframes rotation {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+.rotate-border::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background-color: #9a9a9a;
+    z-index: -1;
+    border-radius: inherit;
+}
+
 ul.law-list {
     list-style-position: inside;
     max-width: 100%;
@@ -43,7 +89,7 @@ ul.law-list {
     background: linear-gradient(to right bottom,
             rgba(255, 255, 255, 0.65),
             rgba(255, 255, 255, 0.45),
-            rgba(255, 255, 255, 0.25));
+            rgba(255, 255, 255, 0.6));
     /* 重点：使元素背景模糊化 */
     backdrop-filter: blur(11px);
     box-shadow: 0.25rem 0.25rem 0.75rem rgb(0 0 0 / 0.15);
@@ -128,7 +174,7 @@ ul.law-list>li:last-child::marker {
     font-size: 1.2rem;
     font-weight: bold;
     color: #006699;
-    padding: 1rem 0 0 0;
+    padding: 1rem 0 0 1.5rem;
     width: 60%;
 }
 
@@ -136,6 +182,11 @@ ul.law-list>li:last-child::marker {
     width: 36%;
     text-align: right;
     padding: 1rem 2rem 0 0;
+}
+
+.page-control>span {
+    /* 间隔 */
+    margin: 0 1rem;
 }
 
 .previous-page a,
@@ -158,40 +209,4 @@ span.title>a {
 span.title>a:hover {
     color: #006699;
     text-decoration: underline;
-}
-
-.rotate-border {
-    z-index: 1;
-    position: relative;
-    overflow: hidden;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.rotate-border::before {
-    z-index: -2;
-    position: absolute;
-    content: '';
-    width: 200%;
-    height: 200%;
-    background-color: #ff0000;
-    left: 50%;
-    top: 50%;
-    transform-origin: left top;
-    animation: rotation 2s linear infinite;
-}
-
-@keyframes rotation {
-    to {
-        transform: rotate(1turn);
-    }
-}
-
-.rotate-border::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    background-color: #9a9a9a;
-    z-index: -1;
-    border-radius: inherit;
 }
