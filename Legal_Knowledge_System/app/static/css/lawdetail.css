@@ -20,10 +20,97 @@
 
 }
 
-.detail-info {}
+.detail-info {
+    padding: 1rem 3rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
 
 .detail-file {
-    margin: 2rem 0;
-    border-radius: 1rem;
+    margin-top: 20px;
+    padding: 10px;
+    margin-top: 2rem;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    /* border-radius: 1rem; */
     overflow: hidden;
+}
+
+
+.law-name {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.law-office,
+.law-type,
+.law-status,
+.law-publish {
+    color: #666;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.law-office::before,
+.law-type::before,
+.law-status::before,
+.law-publish::before {
+    content: "• ";
+    color: #007BFF;
+    font-weight: bold;
+}
+
+/* 响应式字体大小 */
+@media (max-width: 1200px) {
+    .law-name {
+        font-size: 22px;
+    }
+
+    .law-office,
+    .law-type,
+    .law-status,
+    .law-publish {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .law-name {
+        font-size: 20px;
+    }
+
+    .law-office,
+    .law-type,
+    .law-status,
+    .law-publish {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .law-name {
+        font-size: 18px;
+    }
+
+    .law-office,
+    .law-type,
+    .law-status,
+    .law-publish {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .law-name {
+        font-size: 16px;
+    }
+
+    .law-office,
+    .law-type,
+    .law-status,
+    .law-publish {
+        font-size: 12px;
+    }
 }
