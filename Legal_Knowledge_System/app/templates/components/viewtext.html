@@ -1,2 +1,2 @@
 {# 以换行分割content内容 #}
-{% for line in content %}<p>&emsp;&emsp;{{ line }}</p>{% endfor %}
+{% for line in content %}<p class="detail-text">&emsp;&emsp;{{ line|safe }}</p>{% endfor %}

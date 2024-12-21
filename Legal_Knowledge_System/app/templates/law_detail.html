@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/lawdetail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
     <div class="detail-container">
         <div class="detail-box">
             <div class="detail-info">
-                <h2 class="law-name">{{ law.name }}</h2>
-                <p class="law-office">制定机关：{{ law.office }}</p>
-                <p class="law-type">法律性质：{{ law.lawtype }}</p>
-                <p class="law-status">时效性：{{ law.status }}</p>
-                <p class="law-publish">公布日期：{{ law.publish }}</p>
+                <h2 class="name">{{ law.name }}</h2>
+                {% if law.office %}<p class="sub-info">制定机关：{{ law.office }}</p>{% endif %}
+                {% if law.lawtype %}<p class="sub-info">法律性质：{{ law.lawtype }}</p>{% endif %}
+                {% if law.status %}<p class="sub-info">时效性：{{ law.status }}</p>{% endif %}
+                {% if law.publish %}<p class="sub-info">公布日期：{{ law.publish }}</p>{% endif %}
             </div>
             <div class="detail-file">{% include "components/viewfile.html" %}</div>
         </div>

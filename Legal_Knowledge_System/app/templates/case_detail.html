@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>{{ case.title }}</h2>
-                <p>案例分类：{{ case.classification }}</p>
-                <p>来源：{{ case.source }}</p>
-                <p>发布日期：{{ case.publish }}</p>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+    <div class="detail-container">
+        <div class="detail-box">
+            <div class="detail-info">
+                <h2 class="name">{{ case.title }}</h2>
+                {% if case.classification %}<p class="sub-info">案例分类：{{ case.classification }}</p>{% endif %}
+                {% if case.source %}<p class="sub-info">来源：{{ case.source }}</p>{% endif %}
+                {% if case.publish %}<p class="sub-info">发布日期：{{ case.publish }}</p>{% endif %}
             </div>
-            <div class="col-md-12">
-                {% include "components/viewtext.html" with content=case.content %}
-            </div>
+            <div class="detail-file">{% include "components/viewtext.html" with content=case.content %}</div>
         </div>
     </div>
 {% endblock content %}

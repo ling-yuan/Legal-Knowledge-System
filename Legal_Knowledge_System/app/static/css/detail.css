@@ -30,7 +30,7 @@
     margin-top: 20px;
     padding: 10px;
     margin-top: 2rem;
-    background-color: #ffffff;
+    background-color: #ffffff9f;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     /* border-radius: 1rem; */
@@ -38,25 +38,19 @@
 }
 
 
-.law-name {
+.name {
     color: #333;
     font-size: 24px;
     margin-bottom: 10px;
 }
 
-.law-office,
-.law-type,
-.law-status,
-.law-publish {
+.sub-info {
     color: #666;
     font-size: 16px;
     margin: 5px 0;
 }
 
-.law-office::before,
-.law-type::before,
-.law-status::before,
-.law-publish::before {
+.sub-info::before {
     content: "• ";
     color: #007BFF;
     font-weight: bold;
@@ -64,53 +58,45 @@
 
 /* 响应式字体大小 */
 @media (max-width: 1200px) {
-    .law-name {
+    .name {
         font-size: 22px;
     }
 
-    .law-office,
-    .law-type,
-    .law-status,
-    .law-publish {
+    .sub-info {
         font-size: 15px;
     }
 }
 
 @media (max-width: 992px) {
-    .law-name {
+    .name {
         font-size: 20px;
     }
 
-    .law-office,
-    .law-type,
-    .law-status,
-    .law-publish {
+    .sub-info {
         font-size: 14px;
     }
 }
 
 @media (max-width: 768px) {
-    .law-name {
+    .name {
         font-size: 18px;
     }
 
-    .law-office,
-    .law-type,
-    .law-status,
-    .law-publish {
+    .sub-info {
         font-size: 13px;
     }
 }
 
 @media (max-width: 576px) {
-    .law-name {
+    .name {
         font-size: 16px;
     }
 
-    .law-office,
-    .law-type,
-    .law-status,
-    .law-publish {
+    .sub-info {
         font-size: 12px;
     }
+}
+
+.detail-text {
+    margin: 0 1.5rem 1rem 1.5rem;
 }

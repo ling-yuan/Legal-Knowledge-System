@@ -189,8 +189,8 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
     table = CaseInformation.objects.all()
     case = table.filter(id=case_id).first()
     if case:
-        case.content = case.content.replace("\n\n", "\n").split("\n")
-        #
+        case.content = [i.strip() for i in case.content.replace("\n\n", "\n").split("\n")]
+        case.content = [f"<b>{line}</b>" if 1 < len(line) <= 8 else line for line in case.content]
         data = {
             "domain": os.environ.get("DOMAIN"),
             "case": case,
@@ -231,12 +231,21 @@ def chat(request: HttpRequest):
 
 ## 例如：我应该如何申请专利？
 
-## 例如：我应该如何申请离婚？
-
 ```python
 a=1
-```"""
-        # yield markdown_to_html(test_str) + "\n"
+```
+
+正常文字
+
+[链接](https://www.baidu.com)
+
+![图片](https://www.baidu.com/img/bd_logo1.png)
+
+[链接](https://www.baidu.com)
+
+[链接](https://www.baidu.com)
+"""
+        # 前端渲染时图片之后如果还有内容，会导致图片被多次请求，暂未解决
         for i in test_str:
             yield i
             import time

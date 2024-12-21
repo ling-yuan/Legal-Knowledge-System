@@ -11,20 +11,72 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="lawsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        法律法规
-                    </a>
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="lawsDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">法律法规</a>
                     <ul class="dropdown-menu" aria-labelledby="lawsDropdown">
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=宪法">宪法</a></li>
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=法律">法律</a></li>
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=行政法规">行政法规</a></li>
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=监察法规">监察法规</a></li>
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=司法解释">司法解释</a></li>
-                        <li><a class="dropdown-item" href="{% url 'laws' %}?classification=地方性法规">地方性法规</a></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=宪法">宪法</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=法律">法律</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=行政法规">行政法规</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=监察法规">监察法规</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=司法解释">司法解释</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'laws' %}?classification=地方性法规">地方性法规</a>
+                        </li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'cases' %}">案例分析</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="casesDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">案例分析</a>
+                    <ul class="dropdown-menu" aria-labelledby="casesDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}">全部案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=行政指导案例">行政指导案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=民事指导案例">民事指导案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=刑事指导案例">刑事指导案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=行政典型案例">行政典型案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=民事典型案例">民事典型案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=刑事典型案例">刑事典型案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=行政其他案例">行政其他案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=民事其他案例">民事其他案例</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'cases' %}?classification=刑事其他案例">刑事其他案例</a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'ai_chat' %}">AI法律咨询</a>
