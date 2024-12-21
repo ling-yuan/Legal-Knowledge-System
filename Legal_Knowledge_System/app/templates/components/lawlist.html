@@ -43,7 +43,8 @@
                        class="form-control"
                        placeholder="请输入关键字"
                        id="search-input"
-                       value="{{ search_query }}">
+                       value="{{ search_query }}"
+                       onkeydown="keyup_submit(event);">
             </span>
         </span>
         <span>
