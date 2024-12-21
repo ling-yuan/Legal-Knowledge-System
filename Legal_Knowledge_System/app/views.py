@@ -116,14 +116,6 @@ def laws_view(request: HttpRequest):
     return render(request, "laws.html", context)
 
 
-# def read_file(id: str, file_type: str):
-#     file_name = f"{id}.{file_type}"
-#     if os.path.exists(os.environ.get("DATA_FILE_FOLDER") + file_name):
-#         return "存在：" + file_name
-#     else:
-#         return "不存在：" + file_name
-
-
 def law_detail(request: HttpRequest, classification: str, law_id: str):
     """
     law_detail/<str:classification>/<str:law_id>/
@@ -233,13 +225,24 @@ def law_file(request: HttpRequest, file_name: str):
 
 
 def chat(request: HttpRequest):
-    def test_(n: int):
-        import time
+    def test_():
+        test_str = """
+# 请输入您的问题
 
-        for i in range(n):
-            time.sleep(1)
-            yield str(i)
+## 例如：我应该如何申请专利？
 
-    numbers = test_(30)
+## 例如：我应该如何申请离婚？
+
+```python
+a=1
+```"""
+        # yield markdown_to_html(test_str) + "\n"
+        for i in test_str:
+            yield i
+            import time
+
+            time.sleep(0.15)
+
+    numbers = test_()
     response = StreamingHttpResponse(numbers, content_type="text/event-stream")
     return response

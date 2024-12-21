@@ -1,12 +1,5 @@
 // button id=send-btn
 const sendBtn = document.getElementById('send-btn');
-function add_element(txt) {
-    const container = document.getElementById('chat-container');
-    const div = document.createElement('div');
-    div.innerText = txt;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
 
 // click event
 sendBtn.addEventListener('click', async () => {
@@ -16,6 +9,10 @@ sendBtn.addEventListener('click', async () => {
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
 
+    var text = "";
+    const container = document.getElementById('chat-container');
+    const div = document.createElement('div');
+    container.appendChild(div);
     while (true) {
         const {
             done,
@@ -24,10 +21,10 @@ sendBtn.addEventListener('click', async () => {
 
         if (done) break;
 
-        const txt = decoder.decode(value);
+        text += decoder.decode(value);
 
-        console.log(done);
-        console.log(txt);
-        add_element(txt);
+        console.log(done, text);
+        div.innerHTML = marked.parse(text);
     }
+    container.scrollTop = container.scrollHeight;
 })
