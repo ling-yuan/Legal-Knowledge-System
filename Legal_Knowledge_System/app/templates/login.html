@@ -30,8 +30,9 @@
             <form action="{% url 'doLogin' %}" method="post" class="form" id="b-form">
                 {% csrf_token %}
                 <h2 class="form_title title">登入账号</h2>
-                <input type="text" class="form_input" placeholder="Email">
-                <input type="text" class="form_input" placeholder="Password">
+                <input type="text" class="form_input" placeholder="Name" name="uname">
+                <input type="email" class="form_input" placeholder="Email" name="uemail">
+                <input type="password" class="form_input" placeholder="Password" name="upwd">
                 <a class="form_link">忘记密码？</a>
                 <button class="form_button button submit" type="submit">登录</button>
             </form>

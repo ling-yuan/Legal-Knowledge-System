@@ -1,9 +1,14 @@
 import os
 from django.http import HttpResponse, HttpRequest
 from django.http import StreamingHttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from .models import LawInformation, LocalLawInformation, CaseInformation
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 
 # Create your views here.
@@ -14,7 +19,8 @@ def index(request: HttpRequest):
     index/
     首页
     """
-    return render(request, "index.html")
+    uname = request.session.get("uname", "")
+    return render(request, "index.html", {"uname": uname})
 
 
 def login(request: HttpRequest):
@@ -36,7 +42,18 @@ def doLogin(request: HttpRequest):
     登录逻辑
     """
     if request.method == "POST":
-        return HttpResponse("Login")
+        uname = request.POST.get("uname", "")
+        uemail = request.POST.get("uemail", "")
+        upwd = request.POST.get("upwd", "")
+        user = authenticate(email=uemail, password=upwd, username=uname)
+        if user:
+            auth_login(request, user)
+            request.session["uname"] = user.username
+            messages.success(request, "登录成功")
+            return redirect("index")
+        else:
+            messages.error(request, "登录失败")
+            return redirect("login")
     else:
         return HttpResponse("Method Error")
 
@@ -47,9 +64,30 @@ def doRegister(request: HttpRequest):
     注册逻辑
     """
     if request.method == "POST":
-        return HttpResponse("Register")
+        uname = request.POST.get("uname", "")
+        uemail = request.POST.get("uemail", "")
+        upwd = request.POST.get("upwd", "")
+        user = User.objects.create_user(username=uname, email=uemail, password=upwd)
+        user.save()
+        if user:
+            auth_login(request, user)
+            request.session["uname"] = user.username
+            messages.success(request, "登录成功")
+            return redirect("index")
+        else:
+            messages.error(request, "注册失败")
+            return redirect("login")
     else:
         return HttpResponse("Method Error")
+
+
+def logout(request: HttpRequest):
+    """
+    logout/
+    登出逻辑
+    """
+    auth_logout(request)
+    return redirect("index")
 
 
 def user_detail(request: HttpRequest, user_id):
@@ -81,6 +119,10 @@ def laws_view(request: HttpRequest):
     laws/
     法律法规页面
     """
+    # 获取用户
+    uname = request.session.get("uname", "")
+    if not uname:
+        return redirect("login")
     # 参数
     classification = request.GET.get("classification", "宪法")
     status = request.GET.get("status", "")
@@ -88,6 +130,7 @@ def laws_view(request: HttpRequest):
     page = request.GET.get("page", "1")
 
     context = {
+        "uname": uname,
         "domain": os.environ.get("DOMAIN"),
         "all_classifications": ["宪法", "法律", "行政法规", "监察法规", "司法解释", "地方性法规"],
         "all_status": ["", "有效", "已修改", "已废止", "尚未生效"],
@@ -121,12 +164,16 @@ def law_detail(request: HttpRequest, classification: str, law_id: str):
     law_detail/<str:classification>/<str:law_id>/
     法律法规详情页面
     """
+    # 获取用户
+    uname = request.session.get("uname", "")
+    if not uname:
+        return redirect("login")
     table = LocalLawInformation.objects.all() if classification == "地方性法规" else LawInformation.objects.all()
     # 查找id是否存在
     law = table.filter(id=law_id).first()
 
     if law:
-        data = {"domain": os.environ.get("DOMAIN"), "law": law}
+        data = {"domain": os.environ.get("DOMAIN"), "law": law, "uname": uname}
         return render(request, "law_detail.html", data)
     else:
         return HttpResponse("Not Found")
@@ -137,6 +184,10 @@ def case_view(request: HttpRequest):
     case_view/
     案例查询页面
     """
+    # 获取用户
+    uname = request.session.get("uname", "")
+    if not uname:
+        return redirect("login")
     # 参数
     classification = request.GET.get("classification", "")
     title = request.GET.get("q", "")
@@ -159,6 +210,7 @@ def case_view(request: HttpRequest):
     paginator = Paginator(table, 10)
     page_obj = paginator.get_page(page)
     data = {
+        "uname": uname,
         "domain": os.environ.get("DOMAIN"),
         "all_classifications": [
             "",
@@ -186,12 +238,17 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
     case_detail/<str:classification>/<str:case_id>/
     案例详情页面
     """
+    # 获取用户
+    uname = request.session.get("uname", "")
+    if not uname:
+        return redirect("login")
     table = CaseInformation.objects.all()
     case = table.filter(id=case_id).first()
     if case:
         case.content = [i.strip() for i in case.content.replace("\n\n", "\n").split("\n")]
         case.content = [f"<b>{line}</b>" if 1 < len(line) <= 8 else line for line in case.content]
         data = {
+            "uname": uname,
             "domain": os.environ.get("DOMAIN"),
             "case": case,
             "classification": classification,
@@ -255,3 +312,16 @@ a=1
     numbers = test_()
     response = StreamingHttpResponse(numbers, content_type="text/event-stream")
     return response
+
+
+def user_login(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("home")  # 登录成功后重定向到主页
+        else:
+            messages.error(request, "用户名或密码错误")
+    return render(request, "login.html")  # 返回登录页面

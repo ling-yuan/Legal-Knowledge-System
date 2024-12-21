@@ -27,6 +27,7 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("doLogin/", views.doLogin, name="doLogin"),
     path("doRegister/", views.doRegister, name="doRegister"),
+    path("logout/", views.logout, name="logout"),
     path("user_detail/<str:user_id>/", views.user_detail, name="user_detail"),
     path("ai_chat/", views.ai_chat, name="ai_chat"),
     path("search/", views.search, name="search"),
