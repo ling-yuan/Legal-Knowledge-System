@@ -9,6 +9,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from .utils import check_login
 
 
 # Create your views here.
@@ -28,12 +29,7 @@ def login(request: HttpRequest):
     login/
     登录页面
     """
-    if request.method == "POST":
-        return HttpResponse("Login")
-    elif request.method == "GET":
-        return render(request, "login.html")
-    else:
-        return HttpResponse("Method Error")
+    return render(request, "login.html")
 
 
 def doLogin(request: HttpRequest):
@@ -81,6 +77,7 @@ def doRegister(request: HttpRequest):
         return HttpResponse("Method Error")
 
 
+@check_login
 def logout(request: HttpRequest):
     """
     logout/
@@ -90,6 +87,7 @@ def logout(request: HttpRequest):
     return redirect("index")
 
 
+@check_login
 def user_detail(request: HttpRequest, user_id):
     """
     user_detail/<str:user_id>/
@@ -98,6 +96,7 @@ def user_detail(request: HttpRequest, user_id):
     return HttpResponse(f"Hello, {user_id}")
 
 
+@check_login
 def ai_chat(request: HttpRequest):
     """
     ai_chat/
@@ -106,6 +105,7 @@ def ai_chat(request: HttpRequest):
     return render(request, "chat.html")
 
 
+@check_login
 def search(request: HttpRequest):
     """
     search/
@@ -114,6 +114,7 @@ def search(request: HttpRequest):
     return HttpResponse("Search")
 
 
+@check_login
 def laws_view(request: HttpRequest):
     """
     laws/
@@ -121,8 +122,6 @@ def laws_view(request: HttpRequest):
     """
     # 获取用户
     uname = request.session.get("uname", "")
-    if not uname:
-        return redirect("login")
     # 参数
     classification = request.GET.get("classification", "宪法")
     status = request.GET.get("status", "")
@@ -159,6 +158,7 @@ def laws_view(request: HttpRequest):
     return render(request, "laws.html", context)
 
 
+@check_login
 def law_detail(request: HttpRequest, classification: str, law_id: str):
     """
     law_detail/<str:classification>/<str:law_id>/
@@ -166,8 +166,6 @@ def law_detail(request: HttpRequest, classification: str, law_id: str):
     """
     # 获取用户
     uname = request.session.get("uname", "")
-    if not uname:
-        return redirect("login")
     table = LocalLawInformation.objects.all() if classification == "地方性法规" else LawInformation.objects.all()
     # 查找id是否存在
     law = table.filter(id=law_id).first()
@@ -179,6 +177,7 @@ def law_detail(request: HttpRequest, classification: str, law_id: str):
         return HttpResponse("Not Found")
 
 
+@check_login
 def case_view(request: HttpRequest):
     """
     case_view/
@@ -186,8 +185,6 @@ def case_view(request: HttpRequest):
     """
     # 获取用户
     uname = request.session.get("uname", "")
-    if not uname:
-        return redirect("login")
     # 参数
     classification = request.GET.get("classification", "")
     title = request.GET.get("q", "")
@@ -233,6 +230,7 @@ def case_view(request: HttpRequest):
     return render(request, "cases.html", data)
 
 
+@check_login
 def case_detail(request: HttpRequest, classification: str, case_id: str):
     """
     case_detail/<str:classification>/<str:case_id>/
@@ -240,8 +238,6 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
     """
     # 获取用户
     uname = request.session.get("uname", "")
-    if not uname:
-        return redirect("login")
     table = CaseInformation.objects.all()
     case = table.filter(id=case_id).first()
     if case:
@@ -261,6 +257,7 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
 # api -----------------------------------------------------------------------------------------------------------------------------
 
 
+@check_login
 def law_file(request: HttpRequest, file_name: str):
     """
     law_file/<str:file_name>
@@ -281,6 +278,7 @@ def law_file(request: HttpRequest, file_name: str):
         return HttpResponse("File Not Found")
 
 
+@check_login
 def chat(request: HttpRequest):
     def test_():
         test_str = """
@@ -312,16 +310,3 @@ a=1
     numbers = test_()
     response = StreamingHttpResponse(numbers, content_type="text/event-stream")
     return response
-
-
-def user_login(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect("home")  # 登录成功后重定向到主页
-        else:
-            messages.error(request, "用户名或密码错误")
-    return render(request, "login.html")  # 返回登录页面
