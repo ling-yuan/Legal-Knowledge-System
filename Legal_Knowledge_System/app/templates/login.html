@@ -21,8 +21,11 @@
                 {% csrf_token %}
                 <h2 class="form_title title">创建账号</h2>
                 <input type="text" class="form_input" placeholder="Name" name="uname">
-                <input type="email" class="form_input" placeholder="Email" name="uemail">
                 <input type="password" class="form_input" placeholder="Password" name="upwd">
+                <input type="email" class="form_input" placeholder="Email" name="uemail">
+                {% if not showLogin %}
+                    {% for msg in massages %}<p class="form_msg">{{ msg }}</p>{% endfor %}
+                {% endif %}
                 <button class="form_button button submit" type="submit">注册</button>
             </form>
         </div>
@@ -30,10 +33,13 @@
             <form action="{% url 'doLogin' %}" method="post" class="form" id="b-form">
                 {% csrf_token %}
                 <h2 class="form_title title">登入账号</h2>
-                <input type="text" class="form_input" placeholder="Name" name="uname">
+                {% comment %} <input type="text" class="form_input" placeholder="Name" name="uname"> {% endcomment %}
                 <input type="email" class="form_input" placeholder="Email" name="uemail">
                 <input type="password" class="form_input" placeholder="Password" name="upwd">
-                <a class="form_link">忘记密码？</a>
+                {% comment %} <a class="form_link">忘记密码？</a> {% endcomment %}
+                {% if showLogin %}
+                    {% for msg in massages %}<p class="form_msg">{{ msg }}</p>{% endfor %}
+                {% endif %}
                 <button class="form_button button submit" type="submit">登录</button>
             </form>
         </div>
@@ -82,6 +88,8 @@
             switchBtn[i].addEventListener("click", changeForm)
     }
     window.addEventListener("load", shell);
-    
     </script>
+    {% if showLogin %}
+        <script>changeForm();</script>
+    {% endif %}
 </body>

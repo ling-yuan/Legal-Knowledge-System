@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .utils import check_login
 
+# messages_list= get_messages(request)
+
 
 # Create your views here.
 
@@ -29,7 +31,11 @@ def login(request: HttpRequest):
     login/
     登录页面
     """
-    return render(request, "login.html")
+    t = {
+        "showLogin": True if request.GET.get("showLogin", True) == "1" else False,
+        "massages": messages.get_messages(request),
+    }
+    return render(request, "login.html", t)
 
 
 def doLogin(request: HttpRequest):
@@ -38,18 +44,25 @@ def doLogin(request: HttpRequest):
     登录逻辑
     """
     if request.method == "POST":
-        uname = request.POST.get("uname", "")
+        # uname = request.POST.get("uname", "")
         uemail = request.POST.get("uemail", "")
         upwd = request.POST.get("upwd", "")
-        user = authenticate(email=uemail, password=upwd, username=uname)
+        # 根据email查询用户
+        user = User.objects.filter(email=uemail).first()
         if user:
-            auth_login(request, user)
-            request.session["uname"] = user.username
-            messages.success(request, "登录成功")
-            return redirect("index")
+            uname = user.username
+            user = authenticate(password=upwd, username=uname)
+            if user:
+                auth_login(request, user)
+                request.session["uname"] = user.username
+                # messages.success(request, "登录成功")
+                return redirect("index")
+            else:
+                messages.error(request, "用户名或密码有误")
+                return redirect("/login/?showLogin=1")
         else:
-            messages.error(request, "登录失败")
-            return redirect("login")
+            messages.error(request, "用户不存在，请先注册")
+            return redirect("/login/?showLogin=0")
     else:
         return HttpResponse("Method Error")
 
@@ -63,16 +76,25 @@ def doRegister(request: HttpRequest):
         uname = request.POST.get("uname", "")
         uemail = request.POST.get("uemail", "")
         upwd = request.POST.get("upwd", "")
+        if uname == "" or uemail == "" or upwd == "":
+            messages.error(request, "用户名、邮箱或密码均不能为空")
+            return redirect("/login/?showLogin=0")
+        if User.objects.filter(email=uemail).exists():
+            messages.error(request, "邮箱已被使用")
+            return redirect("/login/?showLogin=0")
+        elif User.objects.filter(username=uname).exists():
+            messages.error(request, "用户名已被使用")
+            return redirect("/login/?showLogin=0")
         user = User.objects.create_user(username=uname, email=uemail, password=upwd)
         user.save()
         if user:
             auth_login(request, user)
             request.session["uname"] = user.username
-            messages.success(request, "登录成功")
+            # messages.success(request, "登录成功")
             return redirect("index")
         else:
             messages.error(request, "注册失败")
-            return redirect("login")
+            return redirect("/login/?showLogin=0")
     else:
         return HttpResponse("Method Error")
 
