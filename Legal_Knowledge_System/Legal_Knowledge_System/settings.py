@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 import pymysql
 
@@ -80,13 +81,13 @@ WSGI_APPLICATION = "Legal_Knowledge_System.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "graduation_project",
-        "USER": "root",
-        "PASSWORD": "root",
-        "HOST": "localhost",
-        "PORT": "3306",
+        "NAME": os.environ.get("DB_NAME", None),
+        "USER": os.environ.get("DB_USER", None),
+        "PASSWORD": os.environ.get("DB_PASSWORD", None),
+        "HOST": os.environ.get("DB_HOST", None),
+        "PORT": os.environ.get("DB_PORT", None),
         "OPTIONS": {
-            "charset": "utf8",
+            "charset": os.environ.get("DB_CHARSET", None),
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
@@ -138,4 +139,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEFAULT_CHARSET = "utf8"
 
 # 允许iframe
-X_FRAME_OPTIONS = "ALLOWALL" # 'SAMEORIGIN' 仅允许同源
+X_FRAME_OPTIONS = "ALLOWALL"  # 'SAMEORIGIN' 仅允许同源
