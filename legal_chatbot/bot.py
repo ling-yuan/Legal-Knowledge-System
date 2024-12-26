@@ -1,171 +1,105 @@
 import os
 
+# chain
+from langchain_core.runnables import RunnableBranch
+
 # model
 from langchain_community.llms.ctransformers import CTransformers
 from langchain_openai import ChatOpenAI  # ChatOpenAI模型
-from langchain_experimental.sql import SQLDatabaseChain
 
 # callbacks
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
-# agent
-from langchain_community.agent_toolkits.sql.base import create_sql_agent
-from langchain.agents.agent_types import AgentType
-
 # tools
-from langchain_community.utilities import SQLDatabase
-from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from legal_chatbot.vector_db import VectorDB
 
 # prompt
 from langchain.prompts import PromptTemplate
-from legal_chatbot import MULTI_PROMPT_ROUTER_TEMPLATE as RounterTemplate
-from legal_chatbot import LAWYER_PROMPT_TEMPLATE as LawyerTemplate
-from legal_chatbot import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
-from legal_chatbot import SUMMARY_PROMPT_TEMPLATE as SummaryTemplate
+from legal_chatbot.prompt import MULTI_PROMPT_ROUTER_TEMPLATE as RounterTemplate
+from legal_chatbot.prompt import LAWYER_PROMPT_TEMPLATE as LawyerTemplate
+from legal_chatbot.prompt import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
 
 # parser
 from langchain.chains.router.llm_router import RouterOutputParser
-
-# mysql
-import pymysql
-
-# fileloader
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import Docx2txtLoader
+from langchain_core.output_parsers import StrOutputParser
 
 
 class leagal_bot:
+    basic_llm = ChatOpenAI(
+        model=os.environ["LLM_MODELEND"],
+        api_key=os.environ["OPENAI_API_KEY"],
+        base_url=os.environ["OPENAI_BASE_URL"],
+        temperature=0,
+        callbacks=[StreamingStdOutCallbackHandler()],
+    )
+    # legal_llm = CTransformers(
+    #     model=os.environ.get("MODEL_PATH"),
+    #     model_type=os.environ.get("MODEL_TYPE"),
+    #     config={"temperature": 0.1, "gpu_layers": 500},
+    #     callbacks=[StreamingStdOutCallbackHandler()],
+    # )
+
+    chain = None
 
     def __init__(self):
-        self.router_llm = ChatOpenAI(
-            model=os.environ["LLM_MODELEND"],
-            api_key=os.environ["OPENAI_API_KEY"],
-            base_url=os.environ["OPENAI_BASE_URL"],
-            temperature=0,
-            # verbose=True,
-        )
-        self.legal_llm = CTransformers(
-            model=os.environ.get("MODEL_PATH"),
-            model_type=os.environ.get("MODEL_TYPE"),
-            config={"temperature": 0.1, "gpu_layers": 500},
-            callbacks=[StreamingStdOutCallbackHandler()],
-        )
+        if not leagal_bot.chain:
+            self._create_chain()
 
-    def get_response(self, question):
-        prompt_template = self.__get_intention(question)
-        data = self.__get_data(question)
-        response = self.__get_legal_response(question, prompt_template, data)
-        return response
-
-    def __get_intention(self, question):
+    def _create_chain(self):
+        # 路由链
         prompt_dicts = [
             {
                 "key": "lawyer",
-                "description": "适合回答法律适用、程序或策略的相关问题",
-                "template": LawyerTemplate,
+                "description": "适合根据相关法条回答实际问题",
             },
             {
                 "key": "explain",
-                "description": "适合回答相关法律条文或概念的问题",
-                "template": ExplainTemplate,
+                "description": "适合回答相关法律条文或概念相关的问题",
             },
         ]
-        destinations = [f"{p['key']}: {p['description']}" for p in prompt_dicts]
-        router_template = RounterTemplate.format(destinations="\n".join(destinations))
+        router_template = RounterTemplate.format(
+            destinations="\n".join([f"{p['key']}: {p['description']}" for p in prompt_dicts])
+        )
         router_prompt = PromptTemplate(
             template=router_template,
             input_variables=["input"],
         )
-        chain = router_prompt | self.router_llm | RouterOutputParser()
-        answer = chain.invoke(question)
-        destination = answer["destination"]
-        if destination == "lawyer":
-            return prompt_dicts[0].get("template", LawyerTemplate)
-        elif destination == "explain":
-            return prompt_dicts[1].get("template", LawyerTemplate)
-        else:
-            return prompt_dicts[0].get("template", LawyerTemplate)
-
-    def __get_data(self, question):
-        summary_prompt = PromptTemplate(
-            template=SummaryTemplate,
+        router_chain = router_prompt | leagal_bot.basic_llm | RouterOutputParser()
+        # leagal_bot.chain = router_chain
+        # lawyer chain
+        lawyer_prompt = PromptTemplate(
+            template=LawyerTemplate,
             input_variables=["input"],
         )
-        chain = summary_prompt | self.router_llm
-        answer = chain.invoke(question).content
-        name, file_name = query_db(answer)
-        if file_name:
-            return read_file(file_name)
-        else:
-            return "无"
-
-    def __get_legal_response(self, question, prompt_template, data):
-        prompt = PromptTemplate(
-            template=prompt_template,
-            input_variables=["input", "laws"],
+        lawyer_chain = lawyer_prompt | leagal_bot.basic_llm | StrOutputParser()
+        # explain chain
+        explain_prompt = PromptTemplate(
+            template=ExplainTemplate,
+            input_variables=["input"],
         )
-        print(prompt.format(input=question, laws=data))
-        chain = prompt | self.legal_llm
-        answer = chain.invoke({"input": question, "laws": data})
-        return answer
+        explain_chain = explain_prompt | leagal_bot.basic_llm | StrOutputParser()
+        # retriever
+        vectordb = VectorDB()
+        retriever = vectordb.as_retriever()
 
+        # branch
+        branch = RunnableBranch(
+            (lambda x: x["router"]["destination"] is None, lawyer_chain),
+            (lambda x: "lawyer" in x["router"]["destination"], lawyer_chain),
+            (lambda x: "explain" in x["router"]["destination"], explain_chain),
+            lawyer_chain,
+        )
 
-def query_db(key_words: list[str] | str):
-    key_words = key_words if isinstance(key_words, list) else key_words.split(",")
-    key_words = [i.strip() for i in key_words]
-    # 连接数据库
-    db = pymysql.connect(
-        host=os.environ["DB_HOST"],
-        port=int(os.environ["DB_PORT"]),
-        user=os.environ["DB_USER"],
-        password=os.environ["DB_PASSWORD"],
-        database=os.environ["DB_NAME"],
-        charset="utf8",
-    )
-    # 创建游标
-    cursor = db.cursor()
-    # 查询语句
-    search_ans = []
-    for key_word in key_words:
-        sql = f'SELECT name, id, filetype FROM law_information WHERE name LIKE "%{key_word}%" and lawtype = "法律" AND status = "有效" ORDER BY id DESC'
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        for row in results:
-            search_ans.append(row)
-    # 关闭游标和数据库连接
-    cursor.close()
-    db.close()
-    if len(search_ans) > 0:
-        return search_ans[0][0], search_ans[0][1] + "." + search_ans[0][2]
-    else:
-        return "未找到相关法律条文", None
+        # 最终链
+        leagal_bot.chain = {
+            "router": router_chain,
+            "laws": retriever,
+            "input": PromptTemplate.from_template("{input}"),
+        } | branch
 
+    def invoke(self, query):
+        return leagal_bot.chain.invoke(query)
 
-def read_file(file_name: str):
-    file_path = os.environ.get("DATA_FILE_FOLDER") + file_name
-    ans = ""
-    if file_name.endswith(".pdf"):
-        loader = PyPDFLoader(file_path)
-        documents = loader.load()
-        for doc in documents:
-            ans += doc.page_content
-        ans = ans.replace("\n\n", "\n")
-    elif file_name.endswith(".docx"):
-        loader = Docx2txtLoader(file_path)
-        documents = loader.load()
-        for doc in documents:
-            ans += doc.page_content
-        ans = ans.replace("\n\n", "\n")
-    elif file_name.endswith(".doc"):
-        loader = Docx2txtLoader(file_path.replace("doc", "docx"))
-        documents = loader.load()
-        for doc in documents:
-            ans += doc.page_content
-        ans = ans.replace("\n\n", "\n")
-    elif file_name.endswith(".html"):
-        t = ""
-        with open(file_path, "r", encoding="utf-8") as f:
-            t = f.read()
-        ans = t
-        ans = ans.replace("\n\n", "\n")
-    return ans
+    def stream(self, query):
+        for i in leagal_bot.chain.stream(query):
+            yield i
