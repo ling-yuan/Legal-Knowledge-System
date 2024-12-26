@@ -62,7 +62,7 @@ def doLogin(request: HttpRequest):
                 return redirect("/login/?showLogin=1")
         else:
             messages.error(request, "用户不存在，请先注册")
-            return redirect("/login/?showLogin=0")
+            return redirect("/login/?showLogin=1")
     else:
         return HttpResponse("Method Error")
 
@@ -279,7 +279,6 @@ def case_detail(request: HttpRequest, classification: str, case_id: str):
 # api -----------------------------------------------------------------------------------------------------------------------------
 
 
-@check_login
 def law_file(request: HttpRequest, file_name: str):
     """
     law_file/<str:file_name>

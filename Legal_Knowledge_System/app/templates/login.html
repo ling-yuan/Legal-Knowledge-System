@@ -21,8 +21,8 @@
                 {% csrf_token %}
                 <h2 class="form_title title">创建账号</h2>
                 <input type="text" class="form_input" placeholder="Name" name="uname">
-                <input type="password" class="form_input" placeholder="Password" name="upwd">
                 <input type="email" class="form_input" placeholder="Email" name="uemail">
+                <input type="password" class="form_input" placeholder="Password" name="upwd">
                 {% if not showLogin %}
                     {% for msg in massages %}<p class="form_msg">{{ msg }}</p>{% endfor %}
                 {% endif %}

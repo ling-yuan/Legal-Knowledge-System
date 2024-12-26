@@ -11,6 +11,6 @@ def check_login(func):
         if request.session.get("uname", None):
             return func(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect("/login/?showLogin=1")
 
     return wrapper
