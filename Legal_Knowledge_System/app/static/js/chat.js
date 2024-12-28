@@ -1,11 +1,54 @@
 // button id=send-btn
 const sendBtn = document.getElementById('send-button');
 
+/**
+ * 创建消息元素
+ * @param {boolean} is_user 是否为用户消息
+ * @returns {Element} 消息元素
+ */
+function create_message(is_user) {
+    // 将默认界面隐藏
+    document.getElementById('default').style.display = 'none';
+    // 获取聊天容器
+    const container = document.getElementById('messages');
+    // 创建用户元素
+    const div = document.createElement('div');
+    // 添加类名
+    div.classList.add(is_user ? 'user' : 'bot');
+
+    // 创建消息元素
+    const message = document.createElement('div');
+    message.classList.add('markdown-body');
+    message.classList.add('message');
+    // 添加到聊天容器中
+    container.appendChild(div);
+    div.appendChild(message);
+    return message;
+}
+
+/**
+ * 将文本转换为消息元素并添加到聊天容器中
+ * @param {Element} elem 消息容器
+ * @param {string} text 消息文本
+ * */
+function flush_message(elem, text) {
+    elem.innerHTML = marked.parse(text);
+    elem.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
 // click event
 sendBtn.addEventListener('click', async () => {
-    const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+    // 获取输入框内容
     var question = document.getElementById('message-input').value;
-    console.log(question);
+    // 清空输入框
+    document.getElementById('message-input').value = '';
+    // 创建用户消息元素
+    const el_user_message = create_message(true);
+    // 将用户消息添加到聊天容器中
+    flush_message(el_user_message, question);
+
+    // 获取csrf token
+    const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
     // 构造请求
     const req = new Request("/api/chat/", {
         method: 'POST',
@@ -20,16 +63,16 @@ sendBtn.addEventListener('click', async () => {
     // 发送请求
     const resp = await fetch(req);
 
+    // 获取响应内容
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
 
+    // 创建bot消息元素
+    const el_bot_message = create_message(false);
+    // 将bot消息添加到聊天容器中
+    flush_message(el_bot_message, "正在思考中...");
+    // 读取响应内容
     var text = "";
-
-    // 将默认界面隐藏
-    document.getElementById('default').style.display = 'none';
-    const container = document.getElementById('messages');
-    const div = document.createElement('div');
-    container.appendChild(div);
     while (true) {
         const {
             done,
@@ -40,8 +83,8 @@ sendBtn.addEventListener('click', async () => {
 
         text += decoder.decode(value);
 
-        console.log(done, text);
-        div.innerHTML = marked.parse(text);
+        // 更新bot消息内容
+        flush_message(el_bot_message, text);
     }
     container.scrollTop = container.scrollHeight;
 })

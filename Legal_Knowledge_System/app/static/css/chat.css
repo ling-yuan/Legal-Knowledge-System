@@ -30,29 +30,35 @@
             rgba(255, 255, 255, 0.65),
             rgba(255, 255, 255, 0.45),
             rgba(255, 255, 255, 0.6));
-    border: #9a9a9a 0.1rem dashed
+    border: #9a9a9a 0.1rem dashed;
 }
 
 /* 右侧对话内容 */
 .content {
     width: 80%;
+    margin: 1rem 2rem 1rem 1rem;
 }
 
 .messages {
     height: 80%;
+    /* 内容上下滑动，隐藏滚动条 */
+    overflow-y: scroll;
+    scrollbar-width: none;
 }
 
 .default-message {
-    /* 内容居中 */
+    /* 内容上下排列 */
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%;
+    /* display: none; */
 }
 
 h2.default-title {
-    color: #007bff;
+    color: #2f2f2f;
     font-size: 2rem;
     /* font-weight: bold; */
     text-align: center;
@@ -87,4 +93,32 @@ h2.default-title {
 
 textarea {
     resize: none;
+}
+
+.user,
+.bot {
+    height: fit-content;
+    margin: 1rem 0.5rem;
+}
+
+.user::before,
+.bot::before {
+    color: #007bff;
+    font-weight: bold;
+    border: #9a9a9a 0.1rem dashed;
+    padding: 1px;
+    border-radius: 0.5rem;
+}
+
+.user::before {
+    content: "User: ";
+}
+
+.bot::before {
+    content: "Bot: ";
+}
+
+.message {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
 }

@@ -2,6 +2,8 @@
 {% block content %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'plugins/github-markdown/github-markdown.css' %}">
     <!-- 列表内容部分 -->
     <div class="chat-container">
         <div class="chat-box">
@@ -16,7 +18,13 @@
             <div class="content">
                 <div id="messages" class="messages">
                     <div id="default" class="default-message">
-                        <h2 class="default-title">您好，我是法律助手，请问有什么可以帮助您的吗？</h2>
+                        <img src="{% static 'img/bot.png' %}"
+                             alt="Logo"
+                             class="logo"
+                             width="75"
+                             height="75" />
+                        <br />
+                        <h2 class="default-title">您好，我是法律助手，请问有什么可以帮助您</h2>
                     </div>
                 </div>
                 <div class="input-box">

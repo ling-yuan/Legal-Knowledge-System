@@ -124,7 +124,8 @@ def ai_chat(request: HttpRequest):
     ai_chat/
     人工智能聊天页面
     """
-    return render(request, "chat.html")
+    uname = request.session.get("uname", "")
+    return render(request, "chat.html", {"uname": uname})
 
 
 @check_login
@@ -298,6 +299,7 @@ def law_file(request: HttpRequest, file_name: str):
     else:
         return HttpResponse("File Not Found")
 
+
 @check_login
 def chat(request: HttpRequest):
     # 所有参数
@@ -306,6 +308,7 @@ def chat(request: HttpRequest):
         data = json.loads(body)
         q = data.get("question", None)
         numbers = bot.stream(q)
+        # numbers = leagal_bot().stream(q)
         response = StreamingHttpResponse(numbers, content_type="text/event-stream")
         return response
     else:
