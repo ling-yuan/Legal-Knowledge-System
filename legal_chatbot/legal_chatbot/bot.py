@@ -11,13 +11,13 @@ from langchain_openai import ChatOpenAI  # ChatOpenAI模型
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 # tools
-from legal_chatbot.vector_db import VectorDB
+from .vector_db import VectorDB
 
 # prompt
 from langchain.prompts import PromptTemplate
-from legal_chatbot.prompt import MULTI_PROMPT_ROUTER_TEMPLATE as RounterTemplate
-from legal_chatbot.prompt import LAWYER_PROMPT_TEMPLATE as LawyerTemplate
-from legal_chatbot.prompt import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
+from .prompt import MULTI_PROMPT_ROUTER_TEMPLATE as RounterTemplate
+from .prompt import LAWYER_PROMPT_TEMPLATE as LawyerTemplate
+from .prompt import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
 
 # parser
 from langchain.chains.router.llm_router import RouterOutputParser
@@ -30,7 +30,7 @@ class leagal_bot:
         api_key=os.environ["OPENAI_API_KEY"],
         base_url=os.environ["OPENAI_BASE_URL"],
         temperature=0,
-        callbacks=[StreamingStdOutCallbackHandler()],
+        # callbacks=[StreamingStdOutCallbackHandler()],
     )
     # legal_llm = CTransformers(
     #     model=os.environ.get("MODEL_PATH"),

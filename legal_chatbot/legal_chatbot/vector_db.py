@@ -200,10 +200,10 @@ class VectorDB:
         return self.vectordb.as_retriever(*args, **kwargs)
 
 
-if __name__ == "__main__":
-    # creat_vector_db(300, 10)
-    # ask_question()
-    vdb = VectorDB()
-    ans = [f"-< {i} >-" for i in vdb.get_similar_contents("我想知道，如果我的雇主没有支付工资，我应该如何维权？")]
-    print(*ans, sep="\n---------------------------------------------------\n")
-    pass
+# if __name__ == "__main__":
+#     creat_vector_db(300, 10)
+#     ask_question()
+#     vdb = VectorDB()
+#     ans = vdb.get_similar_contents("我想知道，如果我的雇主没有支付工资，我应该如何维权？")
+#     print(*ans)
+#     pass
