@@ -1,0 +1,90 @@
+.chat-container {
+    margin: 2rem 4rem;
+    height: 83vh;
+}
+
+.chat-box {
+    list-style-position: inside;
+    max-width: 100%;
+    background: linear-gradient(to right bottom,
+            rgba(255, 255, 255, 0.65),
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0.6));
+    backdrop-filter: blur(11px);
+    box-shadow: 0.25rem 0.25rem 0.75rem rgb(0 0 0 / 0.15);
+    padding: 0;
+    margin: 1rem 0 0 0;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+/* 左侧对话历史 */
+.sidebar {
+    width: 20%;
+    margin: 1rem 1rem 1rem 2rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    background: linear-gradient(to right bottom,
+            rgba(255, 255, 255, 0.65),
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0.6));
+    border: #9a9a9a 0.1rem dashed
+}
+
+/* 右侧对话内容 */
+.content {
+    width: 80%;
+}
+
+.messages {
+    height: 80%;
+}
+
+.default-message {
+    /* 内容居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+h2.default-title {
+    color: #007bff;
+    font-size: 2rem;
+    /* font-weight: bold; */
+    text-align: center;
+    mix-blend-mode: multiply;
+
+}
+
+.input-box {
+    height: 20%;
+    /* 水平居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#message-input {
+    width: 80%;
+    border-radius: 1rem;
+    padding: 10px;
+}
+
+#send-button {
+    /* 清除原本所有样式 */
+    border: none;
+    background-color: transparent;
+    color: #007bff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+textarea {
+    resize: none;
+}

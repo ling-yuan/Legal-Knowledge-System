@@ -1,8 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
     {% load static %}
-    <button id="send-btn">发送</button>
-    <div id="chat-container"></div>
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <!-- 列表内容部分 -->
+    <div class="chat-container">
+        <div class="chat-box">
+            <div class="sidebar">
+                <!--  对话记录  -->
+                <div class="history">
+                    <h3>对话记录</h3>
+                    <ul id="history-list">
+                    </ul>
+                </div>
+            </div>
+            <div class="content">
+                <div id="messages" class="messages">
+                    <div id="default" class="default-message">
+                        <h2 class="default-title">您好，我是法律助手，请问有什么可以帮助您的吗？</h2>
+                    </div>
+                </div>
+                <div class="input-box">
+                    <textarea id="message-input" placeholder="请输入您的问题"></textarea>
+                    <input type="button" id="send-button" value="发送" />
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="{% static 'plugins/marked.min.js' %}"></script>
     <script src="{% static 'js/chat.js' %}"></script>
 {% endblock content %}

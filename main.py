@@ -131,9 +131,10 @@
 # # 运行异步获取预测结果函数
 # asyncio.run(get_prediction())
 
-from legal_chatbot import leagal_bot
+from legal_chatbot.legal_chatbot import leagal_bot
 
 bot = leagal_bot()
 
-for i in bot.stream("你今天吃什么了？"):
-    print(i, end="-----------------------------\n")
+# for i in bot.stream("老板不发工资，我应该怎么维权？"):
+#     print(i, end="\n\n")
+print(bot.invoke("老板不发工资，我应该怎么维权？"))

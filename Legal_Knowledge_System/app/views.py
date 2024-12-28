@@ -1,3 +1,4 @@
+import json
 import os
 from django.http import HttpResponse, HttpRequest
 from django.http import StreamingHttpResponse
@@ -10,10 +11,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .utils import check_login
+from legal_chatbot import leagal_bot
 
-# messages_list= get_messages(request)
-
-
+bot = leagal_bot()
 # Create your views here.
 
 
@@ -298,36 +298,15 @@ def law_file(request: HttpRequest, file_name: str):
     else:
         return HttpResponse("File Not Found")
 
-
 @check_login
 def chat(request: HttpRequest):
-    def test_():
-        test_str = """
-# 请输入您的问题
-
-## 例如：我应该如何申请专利？
-
-```python
-a=1
-```
-
-正常文字
-
-[链接](https://www.baidu.com)
-
-![图片](https://www.baidu.com/img/bd_logo1.png)
-
-[链接](https://www.baidu.com)
-
-[链接](https://www.baidu.com)
-"""
-        # 前端渲染时图片之后如果还有内容，会导致图片被多次请求，暂未解决
-        for i in test_str:
-            yield i
-            import time
-
-            time.sleep(0.15)
-
-    numbers = test_()
-    response = StreamingHttpResponse(numbers, content_type="text/event-stream")
-    return response
+    # 所有参数
+    if request.method == "POST":
+        body = request.body.decode("utf-8")
+        data = json.loads(body)
+        q = data.get("question", None)
+        numbers = bot.stream(q)
+        response = StreamingHttpResponse(numbers, content_type="text/event-stream")
+        return response
+    else:
+        return HttpResponse("Method Not Allowed")
