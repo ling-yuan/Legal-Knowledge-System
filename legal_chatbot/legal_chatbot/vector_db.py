@@ -175,14 +175,27 @@ def ask_question():
 
 # 类 用于从向量数据库中获取文本相似的内容
 class VectorDB:
+
+    embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
+    vectordb = Chroma(
+        persist_directory=os.getenv("VECTOR_DB_FOLDER"),
+        embedding_function=embedding,
+    )
+    retriever = vectordb.as_retriever()
+
     def __init__(self, db_path=""):
         # 嵌入模型
-        self.embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
+        self.embedding = VectorDB.embedding
         # 读取向量数据库
-        self.vectordb = Chroma(
-            persist_directory=db_path or os.getenv("VECTOR_DB_FOLDER"),
-            embedding_function=self.embedding,
-        )
+        if db_path:
+            self.vectordb = Chroma(
+                persist_directory=db_path,
+                embedding_function=self.embedding,
+            )
+            self.retriever = self.vectordb.as_retriever()
+        else:
+            self.vectordb = VectorDB.vectordb
+            self.retriever = VectorDB.retriever
 
     def get_similar_documents(self, question):
         # 查询向量数据库
@@ -196,8 +209,8 @@ class VectorDB:
         # 返回结果
         return [doc.page_content.replace("\n\n", "\n") for doc in response]
 
-    def as_retriever(self, *args, **kwargs):
-        return self.vectordb.as_retriever(*args, **kwargs)
+    # def as_retriever(self, *args, **kwargs):
+    #     return self.vectordb.as_retriever(*args, **kwargs)
 
 
 # if __name__ == "__main__":

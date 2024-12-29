@@ -30,7 +30,7 @@ urlpatterns = [
     path("logout/", views.logout, name="logout"),
     path("user_detail/<str:user_id>/", views.user_detail, name="user_detail"),
     path("ai_chat/", views.ai_chat, name="ai_chat"),
-    path("search/", views.search, name="search"),
+    path("search/", views.case_view, name="search"),
     path("laws/", views.laws_view, name="laws"),
     path("law_detail/<str:classification>/<str:law_id>/", view=views.law_detail, name="law_detail"),
     path("cases/", views.case_view, name="cases"),

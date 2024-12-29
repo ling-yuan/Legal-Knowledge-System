@@ -38,6 +38,7 @@ class leagal_bot:
     #     config={"temperature": 0.1, "gpu_layers": 500},
     #     callbacks=[StreamingStdOutCallbackHandler()],
     # )
+    vectordb = VectorDB()
 
     chain = None
 
@@ -79,8 +80,7 @@ class leagal_bot:
         )
         explain_chain = explain_prompt | leagal_bot.basic_llm | StrOutputParser()
         # retriever
-        vectordb = VectorDB()
-        retriever = vectordb.as_retriever()
+        retriever = leagal_bot.vectordb.retriever
 
         # branch
         branch = RunnableBranch(
