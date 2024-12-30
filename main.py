@@ -131,10 +131,16 @@
 # # 运行异步获取预测结果函数
 # asyncio.run(get_prediction())
 
-from legal_chatbot.legal_chatbot import leagal_bot
+from legal_chatbot import leagal_bot
 
 bot = leagal_bot()
-
-# for i in bot.stream("老板不发工资，我应该怎么维权？"):
-#     print(i, end="\n\n")
-print(bot.invoke("老板不发工资，我应该怎么维权？"))
+session_id = "user1234"
+while True:
+    user_input = input("User: ")
+    if user_input.lower() == "quit":
+        break
+    elif user_input.lower() == "history":
+        print("History: ", leagal_bot.get_session_history(session_id), "\n------------------------------\n")
+        continue
+    bot_response = bot.invoke(user_input, session_id)
+    print("Bot: ", bot_response, "\n------------------------------\n")
