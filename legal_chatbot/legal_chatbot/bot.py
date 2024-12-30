@@ -2,6 +2,7 @@ import os
 
 # chain
 from langchain_core.runnables import RunnableBranch
+from langchain_core.runnables import RunnableLambda
 
 # model
 from langchain_community.llms.ctransformers import CTransformers
@@ -23,6 +24,11 @@ from .prompt import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
 from langchain.chains.router.llm_router import RouterOutputParser
 from langchain_core.output_parsers import StrOutputParser
 
+# history
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 
 class leagal_bot:
     basic_llm = ChatOpenAI(
@@ -32,22 +38,32 @@ class leagal_bot:
         temperature=0,
         # callbacks=[StreamingStdOutCallbackHandler()],
     )
+
     # legal_llm = CTransformers(
     #     model=os.environ.get("MODEL_PATH"),
     #     model_type=os.environ.get("MODEL_TYPE"),
     #     config={"temperature": 0.1, "gpu_layers": 500},
     #     callbacks=[StreamingStdOutCallbackHandler()],
     # )
-    vectordb = VectorDB()
 
-    chain = None
+    vectordb = VectorDB()  # 向量数据库
+
+    chain = None  # 对话链
+
+    store = {}  # 存储历史对话
+
+    @classmethod
+    def get_session_history(cls, session_id: str) -> BaseChatMessageHistory:
+        if session_id not in cls.store:
+            cls.store[session_id] = ChatMessageHistory()
+        return cls.store[session_id]
 
     def __init__(self):
         if not leagal_bot.chain:
             self._create_chain()
 
     def _create_chain(self):
-        # 路由链
+        # router chain
         prompt_dicts = [
             {
                 "key": "lawyer",
@@ -66,11 +82,10 @@ class leagal_bot:
             input_variables=["input"],
         )
         router_chain = router_prompt | leagal_bot.basic_llm | RouterOutputParser()
-        # leagal_bot.chain = router_chain
         # lawyer chain
         lawyer_prompt = PromptTemplate(
             template=LawyerTemplate,
-            input_variables=["input"],
+            input_variables=["input", "laws"],
         )
         lawyer_chain = lawyer_prompt | leagal_bot.basic_llm | StrOutputParser()
         # explain chain
@@ -91,15 +106,29 @@ class leagal_bot:
         )
 
         # 最终链
-        leagal_bot.chain = {
+        chain = {
             "router": router_chain,
-            "laws": retriever,
+            "laws": RunnableLambda(lambda x: "".join(leagal_bot.vectordb.get_similar_contents(x["input"]))),
             "input": PromptTemplate.from_template("{input}"),
+            "history": PromptTemplate.from_template("{history}"),
         } | branch
 
-    def invoke(self, query):
-        return leagal_bot.chain.invoke(query)
+        leagal_bot.chain = RunnableWithMessageHistory(
+            chain,
+            leagal_bot.get_session_history,
+            input_messages_key="input",
+            history_messages_key="history",
+        )
 
-    def stream(self, query):
-        for i in leagal_bot.chain.stream(query):
+    def invoke(self, query: str, session_id: str):
+        return leagal_bot.chain.invoke(
+            {"input": query},
+            config={"configurable": {"session_id": session_id}},
+        )
+
+    def stream(self, query: str, session_id: str):
+        for i in leagal_bot.chain.stream(
+            {"input": query},
+            config={"configurable": {"session_id": session_id}},
+        ):
             yield i
