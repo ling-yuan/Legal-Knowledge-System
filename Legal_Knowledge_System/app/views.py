@@ -11,9 +11,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .utils import check_login
-from legal_chatbot import leagal_bot
+from legal_chatbot import legal_bot
 
-bot = leagal_bot()
+bot = legal_bot()
 # Create your views here.
 
 
@@ -307,9 +307,10 @@ def chat(request: HttpRequest):
         body = request.body.decode("utf-8")
         data = json.loads(body)
         q = data.get("question", None)
-        numbers = bot.stream(q)
-        # numbers = leagal_bot().stream(q)
-        response = StreamingHttpResponse(numbers, content_type="text/event-stream")
+        sid = request.session.get("id", None)
+        answer = bot.stream(q, sid)
+        # numbers = legal_bot().stream(q)
+        response = StreamingHttpResponse(answer, content_type="text/event-stream")
         return response
     else:
         return HttpResponse("Method Not Allowed")

@@ -1,4 +1,5 @@
 import os
+import uuid
 
 # chain
 from langchain_core.runnables import RunnableBranch
@@ -10,6 +11,7 @@ from langchain_openai import ChatOpenAI  # ChatOpenAI模型
 
 # callbacks
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
+import legal_chatbot
 
 # tools
 from .vector_db import VectorDB
@@ -30,7 +32,7 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 
-class leagal_bot:
+class legal_bot:
     basic_llm = ChatOpenAI(
         model=os.environ["LLM_MODELEND"],
         api_key=os.environ["OPENAI_API_KEY"],
@@ -59,7 +61,7 @@ class leagal_bot:
         return cls.store[session_id]
 
     def __init__(self):
-        if not leagal_bot.chain:
+        if not legal_bot.chain:
             self._create_chain()
 
     def _create_chain(self):
@@ -81,21 +83,21 @@ class leagal_bot:
             template=router_template,
             input_variables=["input"],
         )
-        router_chain = router_prompt | leagal_bot.basic_llm | RouterOutputParser()
+        router_chain = router_prompt | legal_bot.basic_llm | RouterOutputParser()
         # lawyer chain
         lawyer_prompt = PromptTemplate(
             template=LawyerTemplate,
             input_variables=["input", "laws"],
         )
-        lawyer_chain = lawyer_prompt | leagal_bot.basic_llm | StrOutputParser()
+        lawyer_chain = lawyer_prompt | legal_bot.basic_llm | StrOutputParser()
         # explain chain
         explain_prompt = PromptTemplate(
             template=ExplainTemplate,
             input_variables=["input"],
         )
-        explain_chain = explain_prompt | leagal_bot.basic_llm | StrOutputParser()
+        explain_chain = explain_prompt | legal_bot.basic_llm | StrOutputParser()
         # retriever
-        retriever = leagal_bot.vectordb.retriever
+        retriever = legal_bot.vectordb.retriever
 
         # branch
         branch = RunnableBranch(
@@ -108,27 +110,34 @@ class leagal_bot:
         # 最终链
         chain = {
             "router": router_chain,
-            "laws": RunnableLambda(lambda x: "".join(leagal_bot.vectordb.get_similar_contents(x["input"]))),
+            "laws": RunnableLambda(lambda x: "".join(legal_bot.vectordb.get_similar_contents(x["input"]))),
             "input": PromptTemplate.from_template("{input}"),
             "history": PromptTemplate.from_template("{history}"),
         } | branch
 
-        leagal_bot.chain = RunnableWithMessageHistory(
+        legal_bot.chain = RunnableWithMessageHistory(
             chain,
-            leagal_bot.get_session_history,
+            legal_bot.get_session_history,
             input_messages_key="input",
             history_messages_key="history",
         )
 
-    def invoke(self, query: str, session_id: str):
-        return leagal_bot.chain.invoke(
+    def invoke(self, query: str, session_id: str = None):
+        if session_id is None:
+            session_id = str(uuid.uuid4())
+        ans = legal_bot.chain.invoke(
             {"input": query},
             config={"configurable": {"session_id": session_id}},
         )
+        legal_bot.store.pop(session_id, None)
+        return ans
 
-    def stream(self, query: str, session_id: str):
-        for i in leagal_bot.chain.stream(
+    def stream(self, query: str, session_id: str = None):
+        if session_id is None:
+            session_id = str(uuid.uuid4())
+        for i in legal_bot.chain.stream(
             {"input": query},
             config={"configurable": {"session_id": session_id}},
         ):
             yield i
+        legal_bot.store.pop(session_id, None)
