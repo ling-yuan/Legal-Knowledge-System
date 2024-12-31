@@ -123,21 +123,23 @@ class legal_bot:
         )
 
     def invoke(self, query: str, session_id: str = None):
-        if session_id is None:
+        if not session_id:
             session_id = str(uuid.uuid4())
         ans = legal_bot.chain.invoke(
             {"input": query},
             config={"configurable": {"session_id": session_id}},
         )
-        legal_bot.store.pop(session_id, None)
+        if not session_id:
+            legal_bot.store.pop(session_id, None)
         return ans
 
     def stream(self, query: str, session_id: str = None):
-        if session_id is None:
+        if not session_id:
             session_id = str(uuid.uuid4())
         for i in legal_bot.chain.stream(
             {"input": query},
             config={"configurable": {"session_id": session_id}},
         ):
             yield i
-        legal_bot.store.pop(session_id, None)
+        if not session_id:
+            legal_bot.store.pop(session_id, None)
