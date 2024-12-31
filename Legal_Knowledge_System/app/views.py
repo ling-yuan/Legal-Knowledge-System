@@ -125,7 +125,24 @@ def ai_chat(request: HttpRequest):
     人工智能聊天页面
     """
     uname = request.session.get("uname", "")
-    return render(request, "chat.html", {"uname": uname})
+    data = bot.store.get(uname, None)
+    chat_history = []
+    if data:
+        for n, i in enumerate(data.messages):
+            chat_history.append(
+                {
+                    "role": n % 2 == 0 and "user" or "bot",
+                    "content": i.content,
+                }
+            )
+    return render(
+        request,
+        "chat.html",
+        {
+            "uname": uname,
+            "chat_history": chat_history,
+        },
+    )
 
 
 @check_login
@@ -304,13 +321,24 @@ def law_file(request: HttpRequest, file_name: str):
 def chat(request: HttpRequest):
     # 所有参数
     if request.method == "POST":
+        uname = request.session.get("uname", "")
         body = request.body.decode("utf-8")
         data = json.loads(body)
         q = data.get("question", None)
-        sid = request.session.get("id", None)
-        answer = bot.stream(q, sid)
+        answer = bot.stream(q, uname)
         # numbers = legal_bot().stream(q)
         response = StreamingHttpResponse(answer, content_type="text/event-stream")
         return response
+    else:
+        return HttpResponse("Method Not Allowed")
+
+
+@check_login
+def clear_history(request: HttpRequest):
+    # 所有参数
+    if request.method == "POST":
+        uname = request.session.get("uname", "")
+        bot.store.pop(uname, None)
+        return HttpResponse("ok")
     else:
         return HttpResponse("Method Not Allowed")

@@ -35,8 +35,8 @@ urlpatterns = [
     path("law_detail/<str:classification>/<str:law_id>/", view=views.law_detail, name="law_detail"),
     path("cases/", views.case_view, name="cases"),
     path("case_detail/<str:classification>/<str:case_id>/", view=views.case_detail, name="case_detail"),
-
-    # api 
+    # api
     path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
     path("api/chat/", views.chat, name="chat"),
+    path("api/chat/history/clear/", views.clear_history, name="clear_history"),
 ]

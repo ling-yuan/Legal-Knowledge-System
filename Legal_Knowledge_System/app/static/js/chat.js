@@ -1,5 +1,8 @@
 // button id=send-btn
 const sendBtn = document.getElementById('send-button');
+const clearHistoryBtn = document.getElementById('clear-history');
+const messages_box = document.getElementById('messages')
+const default_message = document.getElementById('default')
 
 /**
  * 创建消息元素
@@ -8,7 +11,7 @@ const sendBtn = document.getElementById('send-button');
  */
 function create_message(is_user) {
     // 将默认界面隐藏
-    document.getElementById('default').style.display = 'none';
+    default_message.style.display = 'none';
     // 获取聊天容器
     const container = document.getElementById('messages');
     // 创建用户元素
@@ -87,4 +90,48 @@ sendBtn.addEventListener('click', async () => {
         flush_message(el_bot_message, text);
     }
     container.scrollTop = container.scrollHeight;
-})
+});
+
+// clear history
+clearHistoryBtn.addEventListener('click', async () => {
+    // 获取csrf token
+    const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+    // 构造请求
+    const req = new Request("/api/chat/history/clear/", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    // 发送请求
+    await fetch(req);
+    // 清空聊天容器
+    messages_box.innerHTML = '';
+    // 显示默认界面
+    default_message.style.display = 'flex';
+    messages_box.appendChild(default_message);
+});
+
+(function () {
+    // 查找class中包含history的元素
+    const history = document.getElementsByClassName('history');
+    // 如果存在history元素
+    if (history.length > 0) {
+        // 隐藏默认界面
+        default_message.style.display = 'none';
+        // 遍历history元素
+        Array.from(history).forEach(elem => {
+            // 获取子节点
+            const child = elem.children[0];
+            // 获取文本内容
+            const text = child.innerText;
+            // 渲染文本内容
+            flush_message(child, text);
+        });
+    } else {
+        // 显示默认界面
+        default_message.style.display = 'flex';
+        messages_box.appendChild(default_message);
+    }
+})();

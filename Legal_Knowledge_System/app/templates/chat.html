@@ -7,14 +7,6 @@
     <!-- 列表内容部分 -->
     <div class="chat-container">
         <div class="chat-box">
-            <div class="sidebar">
-                <!--  对话记录  -->
-                <div class="history">
-                    <h3>对话记录</h3>
-                    <ul id="history-list">
-                    </ul>
-                </div>
-            </div>
             <div class="content">
                 <div id="messages" class="messages">
                     <div id="default" class="default-message">
@@ -26,10 +18,16 @@
                         <br />
                         <h2 class="default-title">您好，我是法律助手，请问有什么可以帮助您</h2>
                     </div>
+                    {% for m in chat_history %}
+                        <div class="{{ m.role }} history">
+                            <div class="markdown-body message">{{ m.content }}</div>
+                        </div>
+                    {% endfor %}
                 </div>
                 <div class="input-box">
                     <textarea id="message-input" placeholder="请输入您的问题"></textarea>
                     <input type="button" id="send-button" value="发送" />
+                    <input type="button" id="clear-history" value="清空记录" />
                 </div>
             </div>
         </div>

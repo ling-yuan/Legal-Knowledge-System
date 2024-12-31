@@ -21,7 +21,7 @@
 }
 
 /* 左侧对话历史 */
-.sidebar {
+/* .sidebar {
     width: 20%;
     margin: 1rem 1rem 1rem 2rem;
     padding: 0.5rem;
@@ -31,11 +31,11 @@
             rgba(255, 255, 255, 0.45),
             rgba(255, 255, 255, 0.6));
     border: #9a9a9a 0.1rem dashed;
-}
+} */
 
 /* 右侧对话内容 */
 .content {
-    width: 80%;
+    width: 100%;
     margin: 1rem 2rem 1rem 1rem;
 }
 
