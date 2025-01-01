@@ -92,7 +92,7 @@
                            data-bs-toggle="dropdown">{{ uname }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="{% url 'login' %}">个人中心</a>
+                                <a class="dropdown-item" href="{% url 'user_detail' uname %}">个人中心</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

@@ -110,12 +110,20 @@ def logout(request: HttpRequest):
 
 
 @check_login
-def user_detail(request: HttpRequest, user_id):
+def user_detail(request: HttpRequest, uname):
     """
-    user_detail/<str:user_id>/
+    user_detail/<str:uname>/
     用户详情页面
     """
-    return HttpResponse(f"Hello, {user_id}")
+    user = User.objects.filter(username=uname).first()
+    if user:
+        context = {
+            "user": user,
+            "uname": request.session.get("uname", ""),
+        }
+        return render(request, "user_detail.html", context)
+    else:
+        return HttpResponse("User Not Found")
 
 
 @check_login
@@ -126,6 +134,7 @@ def ai_chat(request: HttpRequest):
     """
     uname = request.session.get("uname", "")
     data = bot.store.get(uname, None)
+    # data = legal_bot().store.get(uname, None)
     chat_history = []
     if data:
         for n, i in enumerate(data.messages):
@@ -326,7 +335,7 @@ def chat(request: HttpRequest):
         data = json.loads(body)
         q = data.get("question", None)
         answer = bot.stream(q, uname)
-        # numbers = legal_bot().stream(q)
+        # answer = legal_bot().stream(q, uname)
         response = StreamingHttpResponse(answer, content_type="text/event-stream")
         return response
     else:
@@ -339,6 +348,7 @@ def clear_history(request: HttpRequest):
     if request.method == "POST":
         uname = request.session.get("uname", "")
         bot.store.pop(uname, None)
+        # legal_bot().store.pop(uname, None)
         return HttpResponse("ok")
     else:
         return HttpResponse("Method Not Allowed")

@@ -1,0 +1,83 @@
+.detail-container {
+    width: 100%;
+    padding: 2rem 4rem;
+}
+
+.detail-box {
+    display: inline-block;
+    padding: 2rem 4rem;
+    list-style-position: inside;
+    width: 100%;
+    background: linear-gradient(to right bottom,
+            rgba(255, 255, 255, 0.65),
+            rgba(255, 255, 255, 0.45),
+            rgba(255, 255, 255, 0.6));
+    backdrop-filter: blur(11px);
+    box-shadow: 0.25rem 0.25rem 0.75rem rgb(0 0 0 / 0.15);
+    border-radius: 1rem;
+}
+
+.detail-info {
+    padding: 1rem 3rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.name {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.sub-info {
+    color: #666;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.sub-info::before {
+    content: "• ";
+    color: #007BFF;
+    font-weight: bold;
+}
+
+/* 响应式字体大小 */
+@media (max-width: 1200px) {
+    .name {
+        font-size: 22px;
+    }
+
+    .sub-info {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .name {
+        font-size: 20px;
+    }
+
+    .sub-info {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .name {
+        font-size: 18px;
+    }
+
+    .sub-info {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .name {
+        font-size: 16px;
+    }
+
+    .sub-info {
+        font-size: 12px;
+    }
+}

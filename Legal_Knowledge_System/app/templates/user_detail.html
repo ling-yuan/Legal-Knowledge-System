@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/user_detail.css' %}">
+    <div class="container mt-5 detail-container">
+        <div class="detail-box">
+            <h1 class="name">用户详情</h1>
+            <div class="detail-info">
+                <p class="sub-info">用户名: {{ user.username }}</p>
+                <p class="sub-info">邮箱: {{ user.email }}</p>
+                <p class="sub-info">注册日期: {{ user.date_joined }}</p>
+            </div>
+            <a href="{% url 'index' %}" class="btn btn-primary mt-3">返回首页</a>
+        </div>
+    </div>
+{% endblock content %}
