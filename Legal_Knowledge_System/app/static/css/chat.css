@@ -80,6 +80,7 @@ h2.default-title {
     padding: 10px;
 }
 
+#clear-history,
 #send-button {
     /* 清除原本所有样式 */
     border: none;
@@ -89,6 +90,11 @@ h2.default-title {
     cursor: pointer;
     margin-left: 0.5rem;
     transition: color 0.3s ease;
+}
+
+#clear-history:hover,
+#send-button:hover {
+    color: #0056b3;
 }
 
 textarea {

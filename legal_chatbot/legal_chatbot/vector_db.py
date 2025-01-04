@@ -56,9 +56,13 @@ def clean_documents(documents: list[Document]):
     import re
 
     character_list = [
-        ("\u3000", "", False),
-        ("－\d+－", "", True),
-        ("- \d+ -", "", True),
+        ("\u3000", "", False),  # 全角空格
+        ("目录", "", False),  # 目录
+        ("第.章.*?\n", "", True),  # 章节号
+        ("－\d+－", "", True),  # 章节号
+        ("- \d+ -", "", True),  # 章节号
+        ("—\d+—", "", True),  # 章节号
+        ("\n{3,}", "\n\n", True),  # 多个换行符替换为两个换行符
     ]
     for doc in documents:
         for char in character_list:
@@ -120,21 +124,22 @@ def creat_vector_db(chunk_size: int = 500, chunk_overlap: int = 50):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        # separators=["\n\n", "\n", " ", ""],
+        separators=["\n\n", "\n", "。", " ", ""],
         is_separator_regex=False,
         length_function=len,
         keep_separator=False,
     )
     # 读取文件
-    retults = get_law_info()
+    results = get_law_info()
     documents = []
-    for result in retults:
+    for result in results:
         file_name = result[0] + "." + result[-1]
         file_documents = read_file(file_name)
         if file_documents is not None:
-            documents.extend(file_documents)
-    # 切割文本
-    documents = text_splitter.split_documents(documents)
+            # 切割文本
+            for doc in text_splitter.split_documents(file_documents):
+                doc.page_content = f"《{result[2]}》\n\n" + doc.page_content
+                documents.append(doc)
 
     # 嵌入模型
     embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
@@ -209,14 +214,11 @@ class VectorDB:
         # 返回结果
         return [doc.page_content.replace("\n\n", "\n") for doc in response]
 
-    # def as_retriever(self, *args, **kwargs):
-    #     return self.vectordb.as_retriever(*args, **kwargs)
 
-
-# if __name__ == "__main__":
-#     creat_vector_db(300, 10)
-#     ask_question()
-#     vdb = VectorDB()
-#     ans = vdb.get_similar_contents("我想知道，如果我的雇主没有支付工资，我应该如何维权？")
-#     print(*ans)
-#     pass
+if __name__ == "__main__":
+    # creat_vector_db(250, 10)
+    # # ask_question()
+    vdb = VectorDB()
+    ans = vdb.get_similar_contents("家暴")
+    print(*ans, sep="\n------------\n")
+    pass
