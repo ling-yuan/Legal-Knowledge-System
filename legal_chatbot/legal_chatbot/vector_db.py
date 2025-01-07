@@ -49,7 +49,7 @@ def get_law_info():
     return results
 
 
-def clean_documents(documents: list[Document]):
+def clean_documents(documents: list[Document], title: str):
     """
     清洗文档
     """
@@ -60,9 +60,11 @@ def clean_documents(documents: list[Document]):
         ("目录", "", False),  # 目录
         ("第.章.*?\n", "", True),  # 章节号
         ("－\d+－", "", True),  # 章节号
+        ("－ \d+ －", "", True),  # 章节号
         ("- \d+ -", "", True),  # 章节号
         ("—\d+—", "", True),  # 章节号
-        ("\n{3,}", "\n\n", True),  # 多个换行符替换为两个换行符
+        ("\n{3,}", "\n", True),  # 多个换行符替换为两个换行符
+        (f"^{title}", "", True),  # 标题
     ]
     for doc in documents:
         for char in character_list:
@@ -73,7 +75,7 @@ def clean_documents(documents: list[Document]):
     return documents
 
 
-def read_file(file_name: str):
+def read_file(file_name: str, title: str):
     """
     读取文件内容
     """
@@ -85,21 +87,21 @@ def read_file(file_name: str):
             # for doc in documents:
             #     ans += doc.page_content
             # ans = ans.replace("\n\n", "\n")
-            return clean_documents(documents)
+            return clean_documents(documents, title)
         elif file_name.endswith(".docx"):
             loader = Docx2txtLoader(file_path)
             documents = loader.load()
             # for doc in documents:
             #     ans += doc.page_content
             # ans = ans.replace("\n\n", "\n")
-            return clean_documents(documents)
+            return clean_documents(documents, title)
         elif file_name.endswith(".doc"):
             loader = Docx2txtLoader(file_path.replace("doc", "docx"))
             documents = loader.load()
             # for doc in documents:
             #     ans += doc.page_content
             # ans = ans.replace("\n\n", "\n")
-            return clean_documents(documents)
+            return clean_documents(documents, title)
         elif file_name.endswith(".html"):
             t = ""
             with open(file_path, "r", encoding="utf-8") as f:
@@ -110,7 +112,7 @@ def read_file(file_name: str):
                 t += text + "\n"
             doc = Document(page_content=t)
             documents = [doc]
-            return clean_documents(documents)
+            return clean_documents(documents, title)
     except Exception as e:
         print(f"Error reading file {file_name}: {e}")
         return None
@@ -124,21 +126,22 @@ def creat_vector_db(chunk_size: int = 500, chunk_overlap: int = 50):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", "。", " ", ""],
-        is_separator_regex=False,
+        separators=["第[^\n]*条"],
+        is_separator_regex=True,
         length_function=len,
-        keep_separator=False,
+        keep_separator=True,
     )
     # 读取文件
     results = get_law_info()
     documents = []
     for result in results:
         file_name = result[0] + "." + result[-1]
-        file_documents = read_file(file_name)
+        file_documents = read_file(file_name, result[2])
         if file_documents is not None:
             # 切割文本
             for doc in text_splitter.split_documents(file_documents):
-                doc.page_content = f"《{result[2]}》\n\n" + doc.page_content
+                doc.page_content = f"《{result[2]}》\n" + doc.page_content
+                doc.page_content = doc.page_content.replace("\n\n", "\n")
                 documents.append(doc)
 
     # 嵌入模型
@@ -216,7 +219,7 @@ class VectorDB:
 
 
 if __name__ == "__main__":
-    # creat_vector_db(250, 10)
+    # creat_vector_db(200, 10)
     # # ask_question()
     vdb = VectorDB()
     ans = vdb.get_similar_contents("家暴")
