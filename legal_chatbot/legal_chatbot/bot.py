@@ -1,5 +1,6 @@
 import os
 import uuid
+import logging
 
 # chain
 from langchain_core.runnables import RunnableBranch
@@ -11,7 +12,6 @@ from langchain_openai import ChatOpenAI  # ChatOpenAI模型
 
 # callbacks
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-import legal_chatbot
 
 # tools
 from .vector_db import VectorDB
@@ -30,35 +30,32 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from .history import ChatHistory
+
+# config
+from .config import Config
 
 
 class legal_bot:
     basic_llm = ChatOpenAI(
-        model=os.environ["LLM_MODELEND"],
-        api_key=os.environ["OPENAI_API_KEY"],
-        base_url=os.environ["OPENAI_BASE_URL"],
-        temperature=0,
+        model=Config.LLM_CONFIG["model"],
+        api_key=Config.LLM_CONFIG["api_key"],
+        base_url=Config.LLM_CONFIG["base_url"],
+        temperature=Config.LLM_CONFIG["temperature"],
         # callbacks=[StreamingStdOutCallbackHandler()],
     )
 
     # legal_llm = CTransformers(
-    #     model=os.environ.get("MODEL_PATH"),
-    #     model_type=os.environ.get("MODEL_TYPE"),
-    #     config={"temperature": 0.1, "gpu_layers": 500},
-    #     callbacks=[StreamingStdOutCallbackHandler()],
+    #     model=Config.LLM_CONFIG["model_path"],
+    #     model_type=Config.LLM_CONFIG["model_type"],
+    #     config={"temperature": Config.LLM_CONFIG["temperature"], "gpu_layers": 500},
+    #     # callbacks=[StreamingStdOutCallbackHandler()],
     # )
 
     vectordb = VectorDB()  # 向量数据库
 
     chain = None  # 对话链
-
-    store = {}  # 存储历史对话
-
-    @classmethod
-    def get_session_history(cls, session_id: str) -> BaseChatMessageHistory:
-        if session_id not in cls.store:
-            cls.store[session_id] = ChatMessageHistory()
-        return cls.store[session_id]
+    chat_history = ChatHistory()  # 对话历史管理器
 
     def __init__(self):
         if not legal_bot.chain:
@@ -117,29 +114,45 @@ class legal_bot:
 
         legal_bot.chain = RunnableWithMessageHistory(
             chain,
-            legal_bot.get_session_history,
+            legal_bot.chat_history.get_session_history,
             input_messages_key="input",
             history_messages_key="history",
         )
 
     def invoke(self, query: str, session_id: str = None):
-        if not session_id:
-            session_id = str(uuid.uuid4())
-        ans = legal_bot.chain.invoke(
-            {"input": query},
-            config={"configurable": {"session_id": session_id}},
-        )
-        if not session_id:
-            legal_bot.store.pop(session_id, None)
-        return ans
+        try:
+            if not session_id:
+                session_id = str(uuid.uuid4())
+            if not self.validate_input(query):
+                return "输入内容不合法,请重新输入"
+            ans = legal_bot.chain.invoke(
+                {"input": query},
+                config={"configurable": {"session_id": session_id}},
+            )
+            return ans
+        except Exception as e:
+            logging.error(f"Error in invoke: {str(e)}")
+            return "抱歉，系统出现了一些问题，请稍后再试。"
 
     def stream(self, query: str, session_id: str = None):
-        if not session_id:
-            session_id = str(uuid.uuid4())
-        for i in legal_bot.chain.stream(
-            {"input": query},
-            config={"configurable": {"session_id": session_id}},
-        ):
-            yield i
-        if not session_id:
-            legal_bot.store.pop(session_id, None)
+        try:
+            if not session_id:
+                session_id = str(uuid.uuid4())
+            if not self.validate_input(query):
+                yield "输入内容不合法,请重新输入"
+                return
+            for i in legal_bot.chain.stream(
+                {"input": query},
+                config={"configurable": {"session_id": session_id}},
+            ):
+                yield i
+        except Exception as e:
+            logging.error(f"Error in stream: {str(e)}")
+            yield "抱歉，系统出现了一些问题，请稍后再试。"
+
+    def validate_input(self, query: str) -> bool:
+        if not query or len(query.strip()) == 0:
+            return False
+        if len(query) > 1000:  # 限制输入长度
+            return False
+        return True

@@ -1,6 +1,7 @@
 from .prompt import *
 from .vector_db import *
 from .bot import *
+from .config import *
 
 __all__ = [
     "MULTI_PROMPT_ROUTER_TEMPLATE",
@@ -8,5 +9,6 @@ __all__ = [
     "EXPLAIN_PROMPT_TEMPLATE",
     "SUMMARY_PROMPT_TEMPLATE",
     "VectorDB",
-    "leagal_bot",
+    "legal_bot",
+    "Config",
 ]

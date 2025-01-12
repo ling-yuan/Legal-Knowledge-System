@@ -18,6 +18,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 # text_splitter
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+# config
+from .config import Config
+
 
 def get_law_info():
     """
@@ -118,19 +121,21 @@ def read_file(file_name: str, title: str):
         return None
 
 
-def creat_vector_db(chunk_size: int = 500, chunk_overlap: int = 50):
+def creat_vector_db(chunk_size: int = None, chunk_overlap: int = None):
     """
     创建向量数据库
     """
+
     # 文本分割器
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
+        chunk_size=chunk_size or Config.VECTOR_DB_CONFIG["chunk_size"],
+        chunk_overlap=chunk_overlap or Config.VECTOR_DB_CONFIG["chunk_overlap"],
         separators=["第[^\n]*条"],
         is_separator_regex=True,
         length_function=len,
         keep_separator=True,
     )
+
     # 读取文件
     results = get_law_info()
     documents = []
@@ -145,50 +150,35 @@ def creat_vector_db(chunk_size: int = 500, chunk_overlap: int = 50):
                 documents.append(doc)
 
     # 嵌入模型
-    embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
+    embedding = HuggingFaceEmbeddings(
+        model_name=Config.VECTOR_DB_CONFIG["model_name"],
+    )
+
     # 创建向量数据库
     chroma = Chroma(
-        persist_directory=os.getenv("VECTOR_DB_FOLDER"),
+        persist_directory=Config.VECTOR_DB_CONFIG["db_path"],
         embedding_function=embedding,
     )
     chroma.reset_collection()
+
     # 批量添加文档到向量数据库
-    # sub_num = 1000
-    # doc_len = len(documents)
-    # for i in range(0, doc_len, sub_num):
-    #     s = i
-    #     e = i + sub_num if i + sub_num < doc_len else doc_len
-    #     chroma.add_documents(documents[s:e])
-    #     print(f"已添加 {e} / {doc_len} 个文档")
     doc_len = len(documents)
     for i in tqdm.tqdm(range(0, doc_len)):
         chroma.add_documents(documents[i : i + 1])
-
-    # 保存向量数据库
-    # chroma.persist()
-
-
-def ask_question():
-    # 嵌入模型
-    embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
-    # 读取向量数据库
-    vectordb = Chroma(persist_directory=os.getenv("VECTOR_DB_FOLDER"), embedding_function=embedding)
-    # 读取问题
-    question = input("请输入您的问题：")
-    # 查询向量数据库
-    response = vectordb.similarity_search(question)
-    # 返回结果
-    return response
 
 
 # 类 用于从向量数据库中获取文本相似的内容
 class VectorDB:
 
-    embedding = HuggingFaceEmbeddings(model_name="BAAI/bge-small-zh-v1.5")
+    embedding = HuggingFaceEmbeddings(
+        model_name=Config.VECTOR_DB_CONFIG["model_name"],
+    )
+
     vectordb = Chroma(
-        persist_directory=os.getenv("VECTOR_DB_FOLDER"),
+        persist_directory=Config.VECTOR_DB_CONFIG["db_path"],
         embedding_function=embedding,
     )
+
     retriever = vectordb.as_retriever()
 
     def __init__(self, db_path=""):
@@ -205,6 +195,10 @@ class VectorDB:
             self.vectordb = VectorDB.vectordb
             self.retriever = VectorDB.retriever
 
+        # 添加缓存机制
+        self._cache = {}
+        self._cache_size = 1000
+
     def get_similar_documents(self, question):
         # 查询向量数据库
         response = self.vectordb.similarity_search(question)
@@ -212,16 +206,29 @@ class VectorDB:
         return response
 
     def get_similar_contents(self, question):
+        # 检查缓存
+        if question in self._cache:
+            return self._cache[question]
+
         # 查询向量数据库
         response = self.vectordb.similarity_search(question)
-        # 返回结果
-        return [doc.page_content.replace("\n\n", "\n") for doc in response]
+        results = [doc.page_content.replace("\n\n", "\n") for doc in response]
+
+        # 更新缓存
+        if len(self._cache) >= self._cache_size:
+            self._cache.pop(next(iter(self._cache)))
+        self._cache[question] = results
+
+        return results
 
 
 if __name__ == "__main__":
     # creat_vector_db(200, 10)
     # # ask_question()
     vdb = VectorDB()
-    ans = vdb.get_similar_contents("家暴")
-    print(*ans, sep="\n------------\n")
-    pass
+    while True:
+        question = input("请输入您的问题：")
+        if question == "exit":
+            break
+        ans = vdb.get_similar_contents(question)
+        print(*ans, sep="\n------------\n")

@@ -133,7 +133,7 @@ def ai_chat(request: HttpRequest):
     人工智能聊天页面
     """
     uname = request.session.get("uname", "")
-    data = bot.store.get(uname, None)
+    data = bot.chat_history.store.get(uname, None)
     # data = legal_bot().store.get(uname, None)
     chat_history = []
     if data:

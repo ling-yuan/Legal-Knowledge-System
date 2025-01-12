@@ -125,7 +125,7 @@ clearHistoryBtn.addEventListener('click', async () => {
             // 获取子节点
             const child = elem.children[0];
             // 获取文本内容
-            const text = child.innerText;
+            const text = child.innerHTML;
             // 渲染文本内容
             flush_message(child, text);
         });
