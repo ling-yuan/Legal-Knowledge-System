@@ -61,7 +61,7 @@ def clean_documents(documents: list[Document], title: str):
     character_list = [
         ("\u3000", "", False),  # 全角空格
         ("目录", "", False),  # 目录
-        ("第.章.*?\n", "", True),  # 章节号
+        ("^第[一二三四五六七八九十]*?分?[章节编].*?$", "", True),  # 章节号
         ("－\d+－", "", True),  # 章节号
         ("－ \d+ －", "", True),  # 章节号
         ("- \d+ -", "", True),  # 章节号
@@ -74,7 +74,7 @@ def clean_documents(documents: list[Document], title: str):
             if not char[2]:
                 doc.page_content = doc.page_content.replace(char[0], char[1])
             else:
-                doc.page_content = re.sub(char[0], char[1], doc.page_content)
+                doc.page_content = re.sub(char[0], char[1], doc.page_content, flags=re.MULTILINE)
     return documents
 
 
@@ -125,7 +125,6 @@ def creat_vector_db(chunk_size: int = None, chunk_overlap: int = None):
     """
     创建向量数据库
     """
-
     # 文本分割器
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size or Config.VECTOR_DB_CONFIG["chunk_size"],

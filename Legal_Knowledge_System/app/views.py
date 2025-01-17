@@ -180,7 +180,7 @@ def laws_view(request: HttpRequest):
     context = {
         "uname": uname,
         "domain": os.environ.get("DOMAIN"),
-        "all_classifications": ["宪法", "法律", "行政法规", "监察法规", "司法解释", "地方性法规"],
+        "all_classifications": ["宪法", "法律", "行政法规", "监察法规", "司法解释", "民法典", "地方性法规"],
         "all_status": ["", "有效", "已修改", "已废止", "尚未生效"],
         "classification": classification,
         "status": status,
