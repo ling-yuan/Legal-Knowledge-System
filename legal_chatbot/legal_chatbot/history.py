@@ -8,10 +8,15 @@ class ChatHistory:
         self.max_history = max_history
 
     def get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        """获取会话历史"""
+        """获取会话历史，增加上下文智能处理"""
         if session_id not in self.store:
             self.store[session_id] = ChatMessageHistory()
-        return self.store[session_id]
+        # 增加对话历史的智能处理逻辑
+        history: ChatMessageHistory = self.store[session_id]
+        # 例如：根据某些条件清理过旧的历史记录
+        if len(history.messages) > self.max_history:
+            history.messages = history.messages[-self.max_history :]
+        return history
 
     def add_message(self, session_id: str, message: dict):
         """添加新消息"""

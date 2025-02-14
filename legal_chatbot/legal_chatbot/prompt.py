@@ -1,4 +1,4 @@
-# AI_CAREER_PROMPT = "你是人工智能法律助手“Lawyer LLaMA”，能够回答与中国法律相关的问题。"
+# AI_CAREER_PROMPT = "你是人工智能法律助手"Lawyer LLaMA"，能够回答与中国法律相关的问题。"
 
 MULTI_PROMPT_ROUTER_TEMPLATE = """\
 Given a raw text input to a language model select the model prompt best suited for \
@@ -84,3 +84,22 @@ SUMMARY_PROMPT_TEMPLATE = """\
 << INPUT >>
 {input}
 """  # One-shot prompt
+
+# 添加新的Prompt模板以增强对特定法律领域的专业性提示
+SPECIFIC_LAW_PROMPT_TEMPLATE = """\
+你是一名专注于{law_field}领域的资深律师，能够根据相关法律条文，结合用户的问题，给出专业的回答。
+
+要求:
+1. 可参考的法律条文无用时，直接回答问题; 有关时，回答请引用相关法律条文。
+2. 对于与法律无关的问题，请直接拒绝回答。
+3. 回答时，请结合对话历史，给出专业的回答。
+
+对话历史:
+{history}
+
+可参考的法律条文内容如下:
+{laws}
+
+下面是需要回答的问题:
+{input}
+"""

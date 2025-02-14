@@ -60,6 +60,7 @@ class legal_bot:
     def __init__(self):
         if not legal_bot.chain:
             self._create_chain()
+        self.sensitive_words = ["敏感词1", "敏感词2"]  # 添加敏感词列表
 
     def _create_chain(self):
         # router chain
@@ -154,5 +155,7 @@ class legal_bot:
         if not query or len(query.strip()) == 0:
             return False
         if len(query) > 1000:  # 限制输入长度
+            return False
+        if any(word in query for word in self.sensitive_words):  # 检查敏感词
             return False
         return True
