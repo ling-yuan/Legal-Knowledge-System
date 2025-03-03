@@ -131,18 +131,32 @@
 # # 运行异步获取预测结果函数
 # asyncio.run(get_prediction())
 
-from legal_chatbot import legal_bot
+from legal_chatbot import legal_bot_thinking
 
-bot = legal_bot()
-session_id = None
+flag = 1
+bot = legal_bot_thinking()
+session_id = "测试者"
 while True:
     user_input = input("User: ")
     if user_input.lower() == "quit":
         break
     elif user_input.lower() == "history":
-        print("History: ", legal_bot.get_session_history(session_id), "\n------------------------------\n")
+        print(
+            "History: ",
+            legal_bot_thinking.chat_history.get_session_history(session_id),
+            "\n------------------------------\n",
+        )
         continue
     print("Bot: ")
     for token in bot.stream(user_input, session_id):
-        print(token, end="", flush=True)
+        if token.get("thinking"):
+            if flag == 1:
+                print("\n\n思考过程：")
+                flag = 0
+            print(token["thinking"], end="", flush=True)
+        if token.get("answer"):
+            if flag == 0:
+                print("\n\n思考结果：")
+                flag = 1
+            print(token["answer"], end="", flush=True)
     print("\n------------------------------\n")

@@ -10,5 +10,6 @@ __all__ = [
     "SUMMARY_PROMPT_TEMPLATE",
     "VectorDB",
     "legal_bot",
+    "legal_bot_thinking",
     "Config",
 ]

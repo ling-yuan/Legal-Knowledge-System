@@ -11,9 +11,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .utils import check_login
-from legal_chatbot import legal_bot
+from legal_chatbot import legal_bot, legal_bot_thinking
 
-bot = legal_bot()
+bot = legal_bot_thinking()
 # Create your views here.
 
 
@@ -347,8 +347,7 @@ def clear_history(request: HttpRequest):
     # 所有参数
     if request.method == "POST":
         uname = request.session.get("uname", "")
-        bot.store.pop(uname, None)
-        # legal_bot().store.pop(uname, None)
+        bot.chat_history.remove_session(uname)
         return HttpResponse("ok")
     else:
         return HttpResponse("Method Not Allowed")

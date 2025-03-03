@@ -76,6 +76,7 @@ sendBtn.addEventListener('click', async () => {
     flush_message(el_bot_message, "正在思考中...");
     // 读取响应内容
     var text = "";
+    var thinking = "";
     while (true) {
         const {
             done,
@@ -84,10 +85,32 @@ sendBtn.addEventListener('click', async () => {
 
         if (done) break;
 
-        text += decoder.decode(value);
-
-        // 更新bot消息内容
-        flush_message(el_bot_message, text);
+        // 解析JSON响应
+        const chunk = decoder.decode(value);
+        // 正则表达式匹配 {'status': .*?, 'thinking': '.*?', 'answer': '.*?'}
+        const regex = /{'status': .*?, 'thinking': '.*?', 'answer': '.*?'}/;
+        const match = chunk.match(regex);
+        if (match) {
+            for (const item of match) {
+                console.log(item);
+                try {
+                    const data = JSON.parse(item.replace(/"/g,'\\"').replace(/'/g,'"'));
+                    if (data.status === "thinking") {
+                        thinking += data.thinking;
+                        // 显示思考过程
+                        flush_message(el_bot_message, "思考中...\n\n" + thinking);
+                    } else {
+                        text += data.answer;
+                        // 显示最终答案
+                        flush_message(el_bot_message, text);
+                    }
+                } catch (e) {
+                    // 如果不是JSON格式，直接显示文本
+                    text += chunk;
+                    flush_message(el_bot_message, text);
+                }
+            }
+        }
     }
     container.scrollTop = container.scrollHeight;
 });
