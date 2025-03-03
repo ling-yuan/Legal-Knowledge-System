@@ -94,7 +94,7 @@ sendBtn.addEventListener('click', async () => {
             for (const item of match) {
                 console.log(item);
                 try {
-                    const data = JSON.parse(item.replace(/"/g,'\\"').replace(/'/g,'"'));
+                    const data = JSON.parse(item.replace(/"/g, '\\"').replace(/'/g, '"'));
                     if (data.status === "thinking") {
                         thinking += data.thinking;
                         // 显示思考过程
@@ -102,7 +102,11 @@ sendBtn.addEventListener('click', async () => {
                     } else {
                         text += data.answer;
                         // 显示最终答案
-                        flush_message(el_bot_message, text);
+                        if (thinking.length > 0) {
+                            flush_message(el_bot_message, "**思考过程**\n\n" + thinking + "\n\n**回答**\n\n" + text);
+                        } else {
+                            flush_message(el_bot_message, text);
+                        }
                     }
                 } catch (e) {
                     // 如果不是JSON格式，直接显示文本
