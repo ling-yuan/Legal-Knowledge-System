@@ -1,0 +1,110 @@
+{% load static %}
+<link rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/lawlist.css' %}">
+<div class="list-container">
+    <!-- 列表导航栏部分 -->
+    <div class="list-nav">
+        <!-- 下拉菜单：分类 -->
+        <span>
+            <span class="select-label">来源：</span>
+            <span class="select-container">
+                <select class="form-control" id="category-select">
+                    {% for t in all_categories %}
+                        {% if t == category %}
+                            <option value="{{ t }}" selected>{{ t }}</option>
+                        {% else %}
+                            <option value="{{ t }}">{{ t }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </span>
+        </span>
+        <!-- 搜索框 -->
+        <span>
+            <span class="select-label">标题：</span>
+            <span class="select-container">
+                <input type="text"
+                       class="form-control"
+                       placeholder="请输入关键字"
+                       id="search-input"
+                       value="{{ search_query }}"
+                       onkeydown="keyup_submit(event);">
+            </span>
+        </span>
+        <span>
+            <button class="search-btn rotate-border" type="button" id="search-button">搜索</button>
+        </span>
+    </div>
+    <!-- 列表内容部分 -->
+    <ul class="law-list">
+        {% if templates %}
+            <li>
+                <span class="col title tbhead">文书名称</span>
+                <span class="col lawtype tbhead">文书来源</span>
+                <span class="col publish tbhead">发布日期</span>
+            </li>
+            {% for item in templates %}
+                <li>
+                    <span class="col title">
+                        <a href="{% url 'document_template_detail' item.id %}">{{ item.template_name }}</a>
+                    </span>
+                    <span class="col lawtype">{{ item.category }}</span>
+                    <span class="col publish">{{ item.publish_date|date:"Y-m-d" }}</span>
+                </li>
+            {% endfor %}
+            {# 页码控制部分 #}
+            <li class="pagination">
+                <span class="col count">共 {{ templates.paginator.count }} 条</span>
+                <span class="col page-control">
+                    {% if templates.has_previous %}
+                        <span class="previous-page">
+                            <a href="?category={{ category }}&q={{ search_query }}&page={{ templates.previous_page_number }}"><span class="label label-default">上一页</span></a>
+                        </span>
+                    {% endif %}
+                    {% if templates.has_next %}
+                        <span class="next-page">
+                            <a href="?category={{ category }}&q={{ search_query }}&page={{ templates.next_page_number }}"><span class="label label-default">下一页</span></a>
+                        </span>
+                    {% endif %}
+                </span>
+            </li>
+        {% else %}
+        <li>
+            <span class="col title tbhead">暂无结果</span>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('category-select');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        // 类别选择事件
+        categorySelect.addEventListener('change', function() {
+            redirectWithParams();
+        });
+
+        // 搜索按钮点击事件
+        searchButton.addEventListener('click', function() {
+            redirectWithParams();
+        });
+
+        // 回车键提交搜索
+        function keyup_submit(e) {
+            if (e.keyCode === 13) {
+                redirectWithParams();
+            }
+        }
+
+        // 构建URL并跳转
+        function redirectWithParams() {
+            const category = categorySelect.value;
+            const query = searchInput.value;
+            window.location.href = `?category=${encodeURIComponent(category)}&q=${encodeURIComponent(query)}`;
+        }
+    });
+</script> 

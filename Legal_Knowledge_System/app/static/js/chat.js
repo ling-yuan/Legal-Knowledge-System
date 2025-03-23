@@ -63,6 +63,11 @@ sendBtn.addEventListener('click', async () => {
             "question": question
         })
     })
+    // 创建bot消息元素
+    const el_bot_message = create_message(false);
+    // 将bot消息添加到聊天容器中
+    flush_message(el_bot_message, "正在思考中...");
+    
     // 发送请求
     const resp = await fetch(req);
 
@@ -70,10 +75,6 @@ sendBtn.addEventListener('click', async () => {
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
 
-    // 创建bot消息元素
-    const el_bot_message = create_message(false);
-    // 将bot消息添加到聊天容器中
-    flush_message(el_bot_message, "正在思考中...");
     // 读取响应内容
     var text = "";
     var thinking = "";

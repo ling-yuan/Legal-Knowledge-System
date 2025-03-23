@@ -19,3 +19,8 @@ class Config:
         "model_name": "BAAI/bge-small-zh-v1.5",
         "db_path": os.getenv("VECTOR_DB_FOLDER"),
     }
+
+    # 敏感词配置
+    SENSITIVE_WORDS_CONFIG = {
+        "file_path": os.getenv("SENSITIVE_WORDS_FILE_PATH"),
+    }

@@ -176,6 +176,7 @@ class VectorDB:
     vectordb = Chroma(
         persist_directory=Config.VECTOR_DB_CONFIG["db_path"],
         embedding_function=embedding,
+        collection_metadata={"hnsw:space": "cosine"},
     )
 
     retriever = vectordb.as_retriever()

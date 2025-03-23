@@ -35,6 +35,11 @@ urlpatterns = [
     path("law_detail/<str:classification>/<str:law_id>/", view=views.law_detail, name="law_detail"),
     path("cases/", views.case_view, name="cases"),
     path("case_detail/<str:classification>/<str:case_id>/", view=views.case_detail, name="case_detail"),
+    # 法律文书模板
+    path("document_templates/", views.document_templates_view, name="document_templates"),
+    path(
+        "document_template_detail/<str:template_id>/", views.document_template_detail, name="document_template_detail"
+    ),
     # api
     path("law_file/<str:file_name>", view=views.law_file, name="law_file"),
     path("api/chat/", views.chat, name="chat"),

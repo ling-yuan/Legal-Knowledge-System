@@ -14,6 +14,14 @@ from langchain_openai import ChatOpenAI  # ChatOpenAI模型
 # callbacks
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
+# agent
+from langchain.agents import initialize_agent, Tool
+from langchain_community.utilities import SQLDatabase
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langchain.agents.agent_types import AgentType
+from langchain_community.agent_toolkits.playwright.toolkit import PlayWrightBrowserToolkit
+from langchain_community.tools.playwright.utils import create_sync_playwright_browser
+
 # tools
 from .vector_db import VectorDB
 
@@ -25,6 +33,7 @@ from .prompt import EXPLAIN_PROMPT_TEMPLATE as ExplainTemplate
 
 # parser
 from langchain.chains.router.llm_router import RouterOutputParser
+from .parse import JsonParser
 from langchain_core.output_parsers import StrOutputParser
 
 # history
@@ -61,7 +70,14 @@ class legal_bot:
     def __init__(self):
         if not legal_bot.chain:
             self._create_chain()
-        self.sensitive_words = ["敏感词1", "敏感词2"]  # 添加敏感词列表
+        self.sensitive_words = self._get_sensitive_words()  # 添加敏感词列表
+    
+    def _get_sensitive_words(self):
+        try:
+            with open(Config.SENSITIVE_WORDS_CONFIG["file_path"], "r", encoding="utf-8") as f:
+                return [line.strip() for line in f.readlines()]
+        except:
+            return []
 
     def _create_chain(self):
         # router chain
@@ -82,7 +98,7 @@ class legal_bot:
             template=router_template,
             input_variables=["input"],
         )
-        router_chain = router_prompt | legal_bot.basic_llm | RouterOutputParser()
+        router_chain = router_prompt | legal_bot.basic_llm | JsonParser()
         # lawyer chain
         lawyer_prompt = PromptTemplate(
             template=LawyerTemplate,
@@ -331,6 +347,143 @@ class legal_bot_thinking:
                 "thinking": "",
                 "answer": "抱歉，系统出现了一些问题，请稍后再试。",
             }
+
+    def validate_input(self, query: str) -> bool:
+        if not query or len(query.strip()) == 0:
+            return False
+        if len(query) > 1000:  # 限制输入长度
+            return False
+        if any(word in query for word in self.sensitive_words):  # 检查敏感词
+            return False
+        return True
+
+
+class legal_agent:
+
+    chat_model = ChatOpenAI(
+        model=Config.LLM_CONFIG["chat_model"],
+        api_key=Config.LLM_CONFIG["api_key"],
+        base_url=Config.LLM_CONFIG["base_url"],
+        temperature=Config.LLM_CONFIG["temperature"],
+    )
+
+    thinking_model = OpenAI(
+        api_key=Config.LLM_CONFIG["api_key"],
+        base_url=Config.LLM_CONFIG["base_url"],
+    )
+
+    vectordb = VectorDB()  # 向量数据库
+
+    chat_history = ChatHistory()  # 对话历史管理器
+
+    agent = None
+
+    def __init__(self, database_uri):
+        self.sensitive_words = ["敏感词1", "敏感词2"]  # 添加敏感词列表
+        self.database_uri = database_uri
+        self._generate_router_chain()
+
+    def _generate_router_chain(self):
+        prompt_dicts = [
+            {
+                "key": "lawyer",
+                "description": "适合根据相关法条回答实际问题",
+            },
+            {
+                "key": "explain",
+                "description": "适合回答相关法律条文或概念相关的问题",
+            },
+        ]
+        router_template = RounterTemplate.format(
+            destinations="\n".join([f"{p['key']}: {p['description']}" for p in prompt_dicts])
+        )
+        router_prompt = PromptTemplate(
+            template=router_template,
+            input_variables=["input"],
+        )
+        legal_agent.router_chain = router_prompt | legal_agent.chat_model | RouterOutputParser()
+
+    def stream(self, query: str, session_id: str = None):
+        try:
+            exist_session_id = True
+            if not session_id:
+                exist_session_id = False
+                session_id = str(uuid.uuid4())
+            if not self.validate_input(query):
+                yield {
+                    "status": False,
+                    "thinking": "",
+                    "answer": "输入内容不合法,请重新输入",
+                }
+                return
+            # 获取路由链中返回的destination
+            router_result = legal_agent.router_chain.invoke({"input": query})
+            # 根据destination选择合适的prompt
+            prompt = PromptTemplate(
+                template=ExplainTemplate if router_result["destination"] == "explain" else LawyerTemplate,
+                input_variables=["input", "history", "laws"],
+            )
+
+            # 获取对话历史
+            history_messages = legal_agent.chat_history.get_session_history(session_id)
+            history = "\n".join(
+                [
+                    f"{'Human' if index%2==0 else 'AI'}: {msg.content}"
+                    for index, msg in enumerate(history_messages.messages)
+                ]
+            )
+
+            # 初始化tools
+            db = SQLDatabase.from_uri(self.database_uri)
+            toolkit = SQLDatabaseToolkit(db=db, llm=legal_agent.chat_model)
+            tools = self.get_tools()
+
+            # 初始化agent
+            legal_agent.agent = initialize_agent(
+                tools, legal_agent.chat_model, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True
+            )
+
+            # 流式输出回答
+            content = ""
+            response = legal_agent.agent.invoke({"input": query, "history": history})
+            for chunk in response:
+                content += chunk
+                yield {
+                    "status": "answer",
+                    "thinking": "",
+                    "answer": chunk,
+                }
+            # 将回答加入对话历史
+            if exist_session_id:
+                legal_bot_thinking.chat_history.add_message(session_id, {"human": query})
+                legal_bot_thinking.chat_history.add_message(session_id, {"ai": content})
+        except Exception as e:
+            logging.error(f"Error in stream: {str(e)}")
+            yield {
+                "status": False,
+                "thinking": "",
+                "answer": "抱歉，系统出现了一些问题，请稍后再试。",
+            }
+
+    def get_tools(self):
+        # 检索法条工具
+        def search_laws(input: str):
+            return legal_agent.vectordb.get_similar_contents(input)
+
+        # 数据库工具
+        db = SQLDatabase.from_uri(self.database_uri)
+        toolkit = SQLDatabaseToolkit(db=db, llm=legal_agent.chat_model)
+
+        # 浏览器工具
+        browser = create_sync_playwright_browser()
+        playwright_toolkit = PlayWrightBrowserToolkit(browser=browser)
+
+        # 返回工具列表
+        return [
+            Tool(name="search_laws", description="检索相关法律条文", func=search_laws),
+            *toolkit.get_tools(),
+            *playwright_toolkit.get_tools(),
+        ]
 
     def validate_input(self, query: str) -> bool:
         if not query or len(query.strip()) == 0:

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+    <div class="detail-container">
+        <div class="detail-box">
+            <div class="detail-info">
+                <h2 class="name">{{ template.template_name }}</h2>
+                {% if template.category %}<p class="sub-info">文书来源：{{ template.category }}</p>{% endif %}
+                {% if template.publish_date %}<p class="sub-info">发布日期：{{ template.publish_date|date:"Y-m-d" }}</p>{% endif %}
+            </div>
+            <div class="detail-file">
+                <iframe id="content-frame" frameborder="0" width="100%" height="800px"></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iframe = document.getElementById('content-frame');
+        const content = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-family: "Microsoft YaHei", Arial, sans-serif;
+                        line-height: 1.8;
+                        padding: 20px;
+                        color: #333;
+                    }
+                    h1, h2, h3 {
+                        font-weight: bold;
+                        text-align: center;
+                        margin-bottom: 1.5rem;
+                    }
+                    p {
+                        text-indent: 2em;
+                        margin-bottom: 1em;
+                    }
+</style>
+            </head>
+            <body>
+                {{ template.content|safe }}
+            </body>
+            </html>
+        `;
+        
+        // 使用srcdoc设置iframe内容
+        iframe.srcdoc = content;
+        
+        // 自适应高度
+        iframe.onload = function() {
+            iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 50 + 'px';
+        };
+    });
+    </script>
+{% endblock content %}

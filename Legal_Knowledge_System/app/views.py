@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpRequest
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
-from .models import LawInformation, LocalLawInformation, CaseInformation
+from .models import LawInformation, LocalLawInformation, CaseInformation, LegalDocumentTemplate
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -15,7 +15,6 @@ from legal_chatbot import legal_bot, legal_bot_thinking
 
 bot = legal_bot_thinking()
 # Create your views here.
-
 
 def index(request: HttpRequest):
     """
@@ -351,3 +350,65 @@ def clear_history(request: HttpRequest):
         return HttpResponse("ok")
     else:
         return HttpResponse("Method Not Allowed")
+
+
+@check_login
+def document_templates_view(request: HttpRequest):
+    """
+    document_templates/
+    法律文书模板列表页
+    """
+    # 获取所有文书类别
+    all_categories = list(LegalDocumentTemplate.objects.values_list("category", flat=True).distinct())
+    all_categories = [c for c in all_categories if c]
+    all_categories.insert(0, "全部")
+
+    # 获取筛选条件
+    category = request.GET.get("category", "全部")
+    search_query = request.GET.get("q", "")
+    page = request.GET.get("page", 1)
+
+    # 查询文书模板
+    templates_query = LegalDocumentTemplate.objects.all()
+
+    # 按类别筛选
+    if category != "全部":
+        templates_query = templates_query.filter(category=category)
+
+    # 按名称搜索
+    if search_query:
+        templates_query = templates_query.filter(template_name__contains=search_query)
+
+    # 按发布时间排序
+    templates_query = templates_query.order_by("-publish_date")
+
+    # 分页
+    paginator = Paginator(templates_query, 10)
+    templates = paginator.get_page(page)
+
+    context = {
+        "templates": templates,
+        "all_categories": all_categories,
+        "category": category,
+        "search_query": search_query,
+    }
+
+    return render(request, "document_templates.html", context)
+
+
+@check_login
+def document_template_detail(request: HttpRequest, template_id: str):
+    """
+    document_template_detail/template_id
+    法律文书模板详情页
+    """
+    template = LegalDocumentTemplate.objects.filter(id=template_id).first()
+
+    if not template:
+        return HttpResponse("文书模板不存在")
+
+    context = {
+        "template": template,
+    }
+
+    return render(request, "document_template_detail.html", context)

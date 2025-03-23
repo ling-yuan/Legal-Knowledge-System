@@ -160,3 +160,17 @@ class LocalLawInformation(models.Model):
         managed = False
         db_table = "local_law_information"
         db_table_comment = "地方性法规的法律信息表"
+
+
+class LegalDocumentTemplate(models.Model):
+    id = models.CharField(primary_key=True, max_length=255, db_comment="随机uuid")
+    template_name = models.CharField(max_length=255, db_comment="文书模板名称")
+    publish_date = models.DateTimeField(blank=True, null=True, db_comment="文书发布时间")
+    content = models.TextField(blank=True, null=True, db_comment="文书内容")
+    category = models.CharField(max_length=50, blank=True, null=True, db_comment="文书类别")
+    created_at = models.DateTimeField(auto_now_add=True, db_comment="创建时间")
+
+    class Meta:
+        managed = False
+        db_table = "legal_document_template"
+        db_table_comment = "法律文书模板表"
